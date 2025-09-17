@@ -1,0 +1,82 @@
+﻿@model List<CMCS.Models.Claim>
+@{
+    ViewData["Title"] = "Approval Dashboard";
+}
+<h2>Approval Dashboard</h2>
+
+<form method="get" class="filter-row">
+    <label>Filter</label>
+    <select name="filter" onchange="this.form.submit()">
+        <option value="All" @(ViewBag.Filter=="All"?"selected":"")>All</option>
+        <option value="Pending" @(ViewBag.Filter=="Pending"?"selected":"")>Pending</option>
+        <option value="Approved" @(ViewBag.Filter=="Approved"?"selected":"")>Approved</option>
+        <option value="Rejected" @(ViewBag.Filter=="Rejected"?"selected":"")>Rejected</option>
+    </select>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Claim #</th><th>Lecturer</th><th>Date</th><th>Total (R)</th><th>Status</th><th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach(var c in Model) {
+        <tr>
+            <td>@c.ClaimID</td>
+            <td>@(c.LecturerID)</td>
+            <td>@c.ClaimDate.ToShortDateString()</td>
+            <td>@c.TotalAmount</td>
+            <td>@c.Status</td>
+            <td>
+                <button onclick="openApprove(@c.ClaimID)" class="btn small">Review</button>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<!-- Approval modal (simple) -->
+<div id="approveModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>Approve / Reject</h3>
+        <form id="approveForm" method="post" action="/Claims/Approve">
+            <input type="hidden" name="claimId" id="modalClaimId" />
+            <div class="form-row">
+                <label>Approver</label>
+                <select name="userId">
+                    @foreach(var u in ViewBag.Users as List<CMCS.Models.User>) {
+                        <option value="@u.UserID">@u.Name @u.Surname (@u.Position)</option>
+                    }
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Decision</label>
+                <select name="decision">
+                    <option>Approved</option>
+                    <option>Rejected</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Comments</label>
+                <textarea name="comments"></textarea>
+            </div>
+            <div class="form-row">
+                <button type="submit" class="btn">Submit Decision</button>
+                <button type="button" onclick="closeApprove()" class="btn secondary">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openApprove(claimId) {
+        document.getElementById('modalClaimId').value = claimId;
+        document.getElementById('approveModal').style.display = 'block';
+    }
+    function closeApprove() {
+        document.getElementById('approveModal').style.display = 'none';
+    }
+</script>
+}

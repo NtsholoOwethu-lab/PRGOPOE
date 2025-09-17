@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - CMCS Prototype</title>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <nav class="topnav">
+        <div class="brand">CMCS Prototype</div>
+        <ul class="navlinks">
+            <li><a href="/Claims/Submit">Submit Claim</a></li>
+            <li><a href="/Claims/MyClaims">My Claims</a></li>
+            <li><a href="/Claims/ApprovalDashboard">Approval Dashboard</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert">@TempData["Message"]</div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="footer">© CMCS Prototype</footer>
+</body>
+</html>

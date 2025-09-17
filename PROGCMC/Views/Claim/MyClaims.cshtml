@@ -1,0 +1,45 @@
+﻿@model List<CMCS.Models.Claim>
+@{
+    ViewData["Title"] = "My Claims";
+}
+<h2>My Claims</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Claim #</th>
+            <th>Date</th>
+            <th>Hours</th>
+            <th>Rate (R)</th>
+            <th>Total (R)</th>
+            <th>Status</th>
+            <th>Documents</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.ClaimID</td>
+                <td>@c.ClaimDate.ToShortDateString()</td>
+                <td>@c.HoursWorked</td>
+                <td>@c.PayPerHour</td>
+                <td>@c.TotalAmount</td>
+                <td><span class="status">@c.Status</span></td>
+                <td>
+                    @if (c.Documents?.Any() == true)
+                    {
+                        foreach (var d in c.Documents)
+                        {
+                            <div>@d.FileName <small>(@d.UploadDate.ToShortDateString())</small></div>
+                        }
+                    }
+                    else
+                    {
+                        <div>No documents</div>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

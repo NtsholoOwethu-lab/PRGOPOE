@@ -1,0 +1,65 @@
+﻿@model CMCS.Models.Claim
+@{
+    ViewData["Title"] = "Submit Claim";
+}
+<h2>Submit Claim</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-row">
+        <label for="LecturerID">Lecturer</label>
+        <select id="LecturerID" name="LecturerID" required>
+            @foreach (var l in ViewBag.Lecturers as List<CMCS.Models.Lecturer>)
+            {
+                <option value="@l.LecturerID">@l.Name @l.Surname (@l.EmailAddress)</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="HoursWorked">Hours Worked</label>
+        <input id="HoursWorked" name="HoursWorked" step="0.1" value="@Model.HoursWorked" required />
+    </div>
+
+    <div class="form-row">
+        <label for="PayPerHour">Pay Per Hour (R)</label>
+        <input id="PayPerHour" name="PayPerHour" step="0.01" value="@Model.PayPerHour" required />
+    </div>
+
+    <div class="form-row">
+        <label>Total Amount (R)</label>
+        <input id="TotalAmount" readonly />
+    </div>
+
+    <div class="form-row">
+        <label>Supporting Documents</label>
+        <div id="document-area">
+            <!-- In prototype we show client-side upload UI only -->
+            <input type="file" id="files" multiple />
+            <small>Files will not be uploaded in Part 1 prototype.</small>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <button type="submit" class="btn">Submit Claim</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        const hoursEl = document.getElementById('HoursWorked');
+        const rateEl = document.getElementById('PayPerHour');
+        const totalEl = document.getElementById('TotalAmount');
+
+        function computeTotal() {
+            const h = parseFloat(hoursEl.value) || 0;
+            const r = parseFloat(rateEl.value) || 0;
+            totalEl.value = (h * r).toFixed(2);
+        }
+
+        hoursEl.addEventListener('input', computeTotal);
+        rateEl.addEventListener('input', computeTotal);
+
+        // initial
+        computeTotal();
+    </script>
+}
