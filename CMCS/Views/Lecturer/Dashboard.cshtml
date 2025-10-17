@@ -1,120 +1,81 @@
-﻿@model List<MonthlyClaim>
+﻿@model IEnumerable<CMCS.Models.SupportingDocument>
 @{
-    ViewData["Title"] = "Lecturer Dashboard";
+    ViewData["Title"] = "My Documents";
 }
 
-<div class="row">
-    <div class="col-12">
-        <h2><i class="fas fa-tachometer-alt me-2"></i>Lecturer Dashboard</h2>
-        <p class="lead">Manage your monthly claims and track their status.</p>
-    </div>
+<div class="container mt-4">
+    <h2 class="mb-4">Uploaded Documents</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            You have not uploaded any supporting documents yet.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-primary">
+                <tr>
+                    <th>File Name</th>
+                    <th>Uploaded Date</th>
+                    <th>Claim ID</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var doc in Model)
+                {
+                    <tr>
+                        <td>@doc.FileName</td>
+                        <td>@doc.UploadDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@doc.ClaimId</td>
+                        <td>
+                            <a class="btn btn-sm btn-success"
+                               href="@Url.Action("DownloadDocument", "Lecturer", new { id = doc.DocumentId })">
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                            <button class="btn btn-sm btn-danger"
+                                    onclick="deleteDocument(@doc.DocumentId, '@doc.FileName')">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 </div>
 
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4>@ViewBag.TotalClaims</h4>
-                        <p class="card-text">Total Claims</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-file-invoice fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-warning">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4>@ViewBag.PendingClaims</h4>
-                        <p class="card-text">Pending Review</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-clock fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 text-end">
-        <a href="@Url.Action("CreateClaim")" class="btn btn-success btn-lg">
-            <i class="fas fa-plus-circle me-2"></i>Submit New Claim
-        </a>
-    </div>
-</div>
+@section Scripts {
+    <script>
+        function deleteDocument(documentId, fileName) {
+            if (confirm('Are you sure you want to delete "' + fileName + '"? This action cannot be undone.')) {
+                const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+                const token = tokenMeta ? tokenMeta.getAttribute('content') : '';
 
-<div class="card">
-    <div class="card-header">
-        <h5 class="card-title mb-0"><i class="fas fa-history me-2"></i>My Claims</h5>
-    </div>
-    <div class="card-body">
-        @if (Model.Any())
-        {
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Claim ID</th>
-                            <th>Period</th>
-                            <th>Hours</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Submission Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var claim in Model)
-                        {
-                            <tr>
-                                <td>@claim.ClaimId</td>
-                                <td>@claim.Month/@claim.Year</td>
-                                <td>@claim.TotalHours</td>
-                                <td>R @claim.TotalAmount.ToString("N2")</td>
-                                <td>
-                                    <span class="claim-status status-@claim.Status.ToString().ToLower()">
-                                        @claim.Status
-                                    </span>
-                                </td>
-                                <td>@claim.SubmissionDate.ToString("yyyy-MM-dd")</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="@Url.Action("ClaimDetails", new { id = claim.ClaimId })" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
-                                        @if (claim.Status == ClaimStatus.Draft)
-                                        {
-                                            <a href="@Url.Action("EditClaim", new { id = claim.ClaimId })" class="btn btn-sm btn-outline-warning">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
-                                            <form method="post" action="@Url.Action("DeleteClaim", new { id = claim.ClaimId })" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this claim? This action cannot be undone.');">
-                                                @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                    <i class="fas fa-trash"></i> Delete
-                                                </button>
-                                            </form>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                fetch('@Url.Action("DeleteDocument", "Lecturer")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify({ documentId: documentId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('An error occurred while deleting the document.');
+                    console.error('Error:', error);
+                });
+            }
         }
-        else
-        {
-            <div class="text-center py-4">
-                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                <h5>No claims submitted yet</h5>
-                <p class="text-muted">Get started by submitting your first monthly claim.</p>
-                <a href="@Url.Action("CreateClaim")" class="btn btn-primary">Submit Your First Claim</a>
-            </div>
-        }
-    </div>
-</div>
+    </script>
+}

@@ -1,66 +1,83 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Antiforgery
+@using System.Security.Claims
+@inject IAntiforgery Antiforgery
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Contract Monthly Claim System - @ViewData["Title"]</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .navbar-brand {
-            font-weight: bold;
-        }
+    <title>@ViewData["Title"] - CMCS</title>
 
+    <!-- Antiforgery token for JS -->
+    <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(HttpContextAccessor.HttpContext).RequestToken" />
+
+    <!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-..." crossorigin="anonymous">
+
+    <!-- Font Awesome (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha384-..." crossorigin="anonymous" />
+
+    <!-- Optional: your site CSS -->
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <style>
+        /* small helper styles used across pages */
         .claim-status {
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.875rem;
+            padding: .25rem .5rem;
+            border-radius: .35rem;
+            font-weight: 600;
         }
 
         .status-draft {
-            background-color: #6c757d;
-            color: white;
+            background: #f0f0f0;
+            color: #333;
         }
 
         .status-submitted {
-            background-color: #0d6efd;
+            background: #0d6efd;
             color: white;
         }
 
         .status-underreview {
-            background-color: #ffc107;
-            color: black;
+            background: #ffc107;
+            color: #222;
         }
 
         .status-approved {
-            background-color: #198754;
+            background: #198754;
             color: white;
         }
 
         .status-rejected {
-            background-color: #dc3545;
+            background: #dc3545;
             color: white;
         }
 
-        .status-paid {
-            background-color: #6f42c1;
-            color: white;
+        footer.site-footer {
+            padding: 2rem 0;
+            background: #f8f9fa;
+            margin-top: 3rem;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background:#1070f4;">
         <div class="container">
-            <a class="navbar-brand" href="@Url.Action("Index", "Home")">
-                <i class="fas fa-file-invoice-dollar me-2"></i>CMCS
+            <a class="navbar-brand d-flex align-items-center" href="@Url.Action("Index", "Home")">
+                <i class="fas fa-file-invoice-dollar me-2"></i>
+                <strong>CMCS</strong>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="@Url.Action("Index", "Home")">Home</a>
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")" href="@Url.Action("Index", "Home")">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="@Url.Action("Dashboard", "Lecturer")">Lecturer Portal</a>
@@ -69,37 +86,79 @@
                         <a class="nav-link" href="@Url.Action("Dashboard", "Approver")">Approver Portal</a>
                     </li>
                 </ul>
+
+                <div class="d-flex align-items-center">
+                    @{
+                        var user = HttpContextAccessor.HttpContext?.User;
+                        var isAuth = user?.Identity?.IsAuthenticated ?? false;
+                        var name = user?.FindFirst(ClaimTypes.Name)?.Value ?? "";
+                        var role = user?.FindFirst(ClaimTypes.Role)?.Value ?? "";
+                    }
+
+                    @if (isAuth)
+                    {
+                        <span class="text-white me-2">Signed in as <strong>@(string.IsNullOrEmpty(name) ? "User" : name)</strong> <small class="text-light">(@role)</small></span>
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="btn btn-light btn-sm" href="@Url.Action("Login", "Account")">Login</a>
+                    }
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <main class="container my-4">
+        <!-- TempData alerts -->
         @if (TempData["SuccessMessage"] != null)
         {
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 @TempData["SuccessMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
-
         @if (TempData["ErrorMessage"] != null)
         {
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 @TempData["ErrorMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @* Optional: show model errors if injected into TempData by debug code *@
+        @if (TempData["ModelErrors"] != null)
+        {
+            <div class="alert alert-warning">
+                <strong>Validation errors:</strong>
+                <div>@TempData["ModelErrors"]</div>
             </div>
         }
 
         @RenderBody()
-    </div>
+    </main>
 
-    <footer class="bg-light mt-5 py-4">
+    <footer class="site-footer">
         <div class="container text-center">
-            <p class="mb-0">&copy; 2024 Contract Monthly Claim System. All rights reserved.</p>
+            <small>© @DateTime.Now.Year Contract Monthly Claim System. All rights reserved.</small>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    <!-- Scripts: Bootstrap & dependencies (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+
+    <!-- Optional: your site script -->
+    <script src="~/js/site.js"></script>
+
+    <!-- Make CSRF token available via JS global (optional convenience) -->
+    <script>
+        window.CMCS = window.CMCS || {};
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        window.CMCS.csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+    </script>
+
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

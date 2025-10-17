@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using CMCS.Models;
 using CMCS.Repositories;
 using CMCS.Data;
-using System.Security.Claims;
+using CMCS.Services;
 
 namespace CMCS.Controllers
 {
@@ -72,7 +72,7 @@ namespace CMCS.Controllers
                 {
                     var createdClaim = await _claimRepository.CreateClaimAsync(claim);
 
-                    // Handle file uploads
+                    // Handle file uploads (encrypted)
                     if (files != null && files.Any(f => f.Length > 0))
                     {
                         await HandleFileUploads(createdClaim.ClaimId, files);
@@ -252,7 +252,7 @@ namespace CMCS.Controllers
             return RedirectToAction("Dashboard");
         }
 
-        // POST: Delete document
+        // POST: Delete document (unchanged server behavior)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteDocument(int documentId)
@@ -277,7 +277,7 @@ namespace CMCS.Controllers
                     return Json(new { success = false, message = "You can only delete documents from claims that are in Draft status." });
                 }
 
-                // Delete physical file
+                // Delete physical encrypted file
                 var filePath = Path.Combine(_environment.WebRootPath, "uploads", document.FilePath);
                 if (System.IO.File.Exists(filePath))
                 {
@@ -297,7 +297,7 @@ namespace CMCS.Controllers
             }
         }
 
-        // File download
+        // File download (decrypt on the fly)
         public async Task<IActionResult> DownloadDocument(int id)
         {
             var document = await _claimRepository.GetDocumentByIdAsync(id);
@@ -314,21 +314,25 @@ namespace CMCS.Controllers
                 return RedirectToAction("Dashboard");
             }
 
-            var path = Path.Combine(_environment.WebRootPath, "uploads", document.FilePath);
-            if (!System.IO.File.Exists(path))
+            var encryptedPath = Path.Combine(_environment.WebRootPath, "uploads", document.FilePath);
+            if (!System.IO.File.Exists(encryptedPath))
             {
                 TempData["ErrorMessage"] = "File not found on server.";
                 return RedirectToAction("Dashboard");
             }
 
-            var memory = new MemoryStream();
-            using (var stream = new FileStream(path, FileMode.Open))
+            try
             {
-                await stream.CopyToAsync(memory);
+                var memory = await EncryptionService.DecryptFromFileAsync(encryptedPath);
+                // Return file with correct mime and original filename
+                return File(memory.ToArray(), GetContentType(document.FileType), document.FileName);
             }
-            memory.Position = 0;
-
-            return File(memory, GetContentType(document.FileType), document.FileName);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error decrypting file");
+                TempData["ErrorMessage"] = "An error occurred while preparing the file for download.";
+                return RedirectToAction("Dashboard");
+            }
         }
 
         private async Task HandleFileUploads(int claimId, List<IFormFile> files)
@@ -356,13 +360,14 @@ namespace CMCS.Controllers
                     throw new Exception($"File {file.FileName} has an unsupported format. Allowed formats: PDF, DOCX, XLSX, JPG, JPEG, PNG.");
                 }
 
-                // Generate unique filename
+                // Generate unique filename (store encrypted file using GUID)
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(uploadsPath, fileName);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                // Encrypt input stream and write to disk
+                using (var inputStream = file.OpenReadStream())
                 {
-                    await file.CopyToAsync(stream);
+                    await EncryptionService.EncryptToFileAsync(inputStream, filePath);
                 }
 
                 documents.Add(new SupportingDocument
