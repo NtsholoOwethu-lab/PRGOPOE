@@ -1,0 +1,185 @@
+﻿@model MonthlyClaim
+@{
+    ViewData["Title"] = "Claim Details";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-file-invoice me-2"></i>Claim Details #@Model.ClaimId</h2>
+        <p class="lead">View the details of your monthly claim.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Claim Information</h5>
+                <span class="claim-status status-@Model.Status.ToString().ToLower()">@Model.Status</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Lecturer:</strong> @Model.Lecturer.FirstName @Model.Lecturer.LastName<br>
+                        <strong>Department:</strong> @Model.Lecturer.Department<br>
+                        <strong>Email:</strong> @Model.Lecturer.Email<br>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Period:</strong> @Model.Month/@Model.Year<br>
+                        <strong>Hourly Rate:</strong> R @Model.Lecturer.HourlyRate.ToString("N2")<br>
+                        <strong>Submission Date:</strong> @Model.SubmissionDate.ToString("yyyy-MM-dd")<br>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Hours Worked:</strong> @Model.TotalHours<br>
+                        <strong>Total Amount:</strong> R @Model.TotalAmount.ToString("N2")<br>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Additional Notes:</strong><br>
+                        <p class="text-muted">@(string.IsNullOrEmpty(Model.Notes) ? "None provided" : Model.Notes)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Supporting Documents</h5>
+                <span class="badge bg-secondary">@Model.SupportingDocuments.Count documents</span>
+            </div>
+            <div class="card-body">
+                @if (Model.SupportingDocuments.Any())
+                {
+                    <div class="list-group">
+                        @foreach (var doc in Model.SupportingDocuments)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-file @(doc.FileType.Contains("pdf") ? "text-danger" :
+                                                                                                 doc.FileType.Contains("word") ? "text-primary" :
+                                                                                                 doc.FileType.Contains("excel") ? "text-success" :
+                                                                                                 doc.FileType.Contains("image") ? "text-warning" : "text-secondary") me-2"></i>
+                            @doc.FileName
+                            <small class="text-muted d-block">
+                                Uploaded: @doc.UploadDate.ToString("yyyy-MM-dd") |
+                                Size: @((doc.FileSize / 1024 / 1024).ToString("0.00")) MB
+                            </small>
+                        </div>
+                        <div>
+                            <a href="@Url.Action("DownloadDocument", new { id = doc.DocumentId })"
+                               class="btn btn-sm btn-outline-primary me-1">
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                            @if (Model.Status == ClaimStatus.Draft)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteDocument(@doc.DocumentId, '@doc.FileName')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No supporting documents uploaded.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Claim Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("Dashboard")" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+
+                    @if (Model.Status == ClaimStatus.Draft)
+                    {
+                        <a href="@Url.Action("EditClaim", new { id = Model.ClaimId })" class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>Edit Claim
+                        </a>
+
+                        <form method="post" action="@Url.Action("DeleteClaim", new { id = Model.ClaimId })"
+                              onsubmit="return confirm('Are you sure you want to delete this claim? This action cannot be undone.');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="fas fa-trash me-2"></i>Delete Claim
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Approval History</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.ClaimApprovals.Any())
+                {
+                    foreach (var approval in Model.ClaimApprovals.OrderBy(a => a.ApprovalDate))
+                    {
+                        <div class="mb-3 pb-2 border-bottom">
+                            <strong>@approval.ApproverType</strong><br>
+                            <span class="@(approval.Decision == true ? "text-success" : "text-danger")">
+                                @(approval.Decision == true ? "Approved" : "Rejected")
+                            </span>
+                            on @approval.ApprovalDate?.ToString("yyyy-MM-dd")<br>
+                            @if (!string.IsNullOrEmpty(approval.Comments))
+                            {
+                                <small class="text-muted">"@approval.Comments"</small>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No approval history yet.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function deleteDocument(documentId, fileName) {
+            if (confirm('Are you sure you want to delete "' + fileName + '"? This action cannot be undone.')) {
+                fetch('@Url.Action("DeleteDocument")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ documentId: documentId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('An error occurred while deleting the document.');
+                    console.error('Error:', error);
+                });
+            }
+        }
+    </script>
+}

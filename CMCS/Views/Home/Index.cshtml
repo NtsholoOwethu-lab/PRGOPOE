@@ -1,0 +1,45 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="row">
+    <div class="col-12 text-center mb-5">
+        <h1 class="display-4">Contract Monthly Claim System</h1>
+        <p class="lead">Streamlining the claim submission and approval process for independent contractor lecturers.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-user-graduate fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">For Lecturers</h5>
+                <p class="card-text">Submit your monthly claims, upload supporting documents, and track your claim status.</p>
+                <a href="@Url.Action("Dashboard", "Lecturer")" class="btn btn-primary">Access Lecturer Portal</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-tasks fa-3x text-success mb-3"></i>
+                <h5 class="card-title">For Programme Coordinators</h5>
+                <p class="card-text">Review and verify claims submitted by lecturers in your department.</p>
+                <a href="@Url.Action("Dashboard", "Approver")" class="btn btn-success">Access Approver Portal</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-clipboard-check fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">For Academic Managers</h5>
+                <p class="card-text">Final approval of claims and comprehensive oversight of the process.</p>
+                <a href="@Url.Action("Dashboard", "Approver")" class="btn btn-warning">Access Manager Portal</a>
+            </div>
+        </div>
+    </div>
+</div>
