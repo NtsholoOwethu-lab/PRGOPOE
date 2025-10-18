@@ -1,67 +1,50 @@
 using CMCS.Data;
-using CMCS.Models;
 using CMCS.Repositories;
+using CMCS.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Antiforgery;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
+// Services
 builder.Services.AddControllersWithViews();
 
-// Use In-Memory Database instead of SQL Server
+// Register EF DbContext (In-Memory database for prototype)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseInMemoryDatabase("CMCS-InMemory"));
 
-// Add repositories
+// Register repository for DI (this fixes the "Unable to resolve IClaimRepository" error)
 builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
 
-// Configure file upload limits
-builder.Services.Configure<IISServerOptions>(options =>
+// Register HttpContextAccessor (used by Layout for antiforgery token and user info)
+builder.Services.AddHttpContextAccessor();
+
+// Configure Antiforgery so JS can use a header (your layout uses a meta token)
+builder.Services.AddAntiforgery(options =>
 {
-    options.MaxRequestBodySize = 50 * 1024 * 1024; // 50MB
+    options.HeaderName = "X-CSRF-TOKEN";
 });
 
+// If you want to add logging, identity, or other services do it here
+// builder.Services.AddLogging();
+// builder.Services.AddAuthentication(...);
+
+// ----------------------------
+// Build app
+// ----------------------------
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-else
-{
-    app.UseDeveloperExceptionPage();
-}
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
-app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-// Ensure uploads directory exists
-var uploadsPath = Path.Combine(app.Environment.WebRootPath, "uploads");
-if (!Directory.Exists(uploadsPath))
-{
-    Directory.CreateDirectory(uploadsPath);
-}
-
-// Initialize the in-memory database with seed data
+// Seed sample data (optional)
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-    // This will create the in-memory database and seed it
     context.Database.EnsureCreated();
 
-    // Ensure seed data is added
     if (!context.Lecturers.Any())
     {
-        // Add seed data manually since HasData doesn't work well with in-memory
         context.Lecturers.AddRange(
             new Lecturer { LecturerId = 1, FirstName = "John", LastName = "Smith", Email = "john.smith@university.com", HourlyRate = 250.00m, Department = "Computer Science" },
             new Lecturer { LecturerId = 2, FirstName = "Sarah", LastName = "Johnson", Email = "sarah.johnson@university.com", HourlyRate = 275.00m, Department = "Information Technology" },
@@ -77,5 +60,43 @@ using (var scope = app.Services.CreateScope())
         context.SaveChanges();
     }
 }
+
+// ----------------------------
+// Middleware pipeline
+// ----------------------------
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+else
+{
+    app.UseDeveloperExceptionPage();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+// Ensure uploads folder exists and optionally serve it under /uploads
+var uploadsPath = Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "uploads");
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
+
+app.UseRouting();
+
+// If you later enable authentication, ensure these are in the right order
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

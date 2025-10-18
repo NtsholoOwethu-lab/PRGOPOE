@@ -287,8 +287,8 @@ C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\CMCS\bin\Debug\net9
 C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\CMCS\bin\Debug\net9.0\Pomelo.EntityFrameworkCore.MySql.dll
 C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\appsettings.Development.json
 C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\appsettings.json
-C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\CMCS.staticwebassets.endpoints.json
 C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\CMCS.staticwebassets.runtime.json
+C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\CMCS.staticwebassets.endpoints.json
 C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\CMCS.exe
 C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\CMCS.deps.json
 C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\CMCS.runtimeconfig.json
