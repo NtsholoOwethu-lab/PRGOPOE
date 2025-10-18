@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Select role to continue (demo)</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-controller="Account" asp-action="Login">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" name="role" required>
+                            <option value="">Select role</option>
+                            <option value="Lecturer">Lecturer</option>
+                            <option value="ProgrammeCoordinator">Programme Coordinator</option>
+                            <option value="AcademicManager">Academic Manager</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Login</button>
+                </form>
+                <p class="text-muted mt-3">This is a simple demo login that sets a role and demo user id.</p>
+            </div>
+        </div>
+    </div>
+</div>
