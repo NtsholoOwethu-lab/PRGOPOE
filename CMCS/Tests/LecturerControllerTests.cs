@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using CMCS.Controllers;
 using CMCS.Data;
 using CMCS.Models;
-using CMCS.Repositories;
 using CMCS.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +58,7 @@ namespace CMCS.Tests
             ctx.SaveChanges();
 
             // set up repository and environment
-            var repo = new ClaimRepository(ctx);
+         
             var env = new TestWebHostEnvironment { WebRootPath = Path.GetTempPath() };
 
             // copy encrypted file into webroot/uploads
@@ -69,7 +68,7 @@ namespace CMCS.Tests
             File.Copy(encPath, destPath, overwrite: true);
 
             var logger = new NullLogger<LecturerController>();
-            var controller = new LecturerController(repo, ctx, env, logger);
+            var controller = new LecturerController( ctx, env, logger);
 
             // Act
             var result = await controller.DeleteDocument(doc.DocumentId) as JsonResult;

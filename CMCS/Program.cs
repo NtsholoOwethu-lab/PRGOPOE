@@ -1,103 +1,111 @@
 ﻿using CMCS.Data;
-using CMCS.Repositories;
+
 using CMCS.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ------------------------------------------------------
+// 1️⃣ Configure Services
+// ------------------------------------------------------
+
+// Add MVC Controllers and Views
 builder.Services.AddControllersWithViews();
 
-// Register HttpContextAccessor so Razor layout can use it
+// Add HttpContext accessor for Razor Views and Controllers
 builder.Services.AddHttpContextAccessor();
 
-// Antiforgery (JS header name)
+// Register Antiforgery service (for CSRF protection)
 builder.Services.AddAntiforgery(options =>
 {
-    options.HeaderName = "X-CSRF-TOKEN";
+    options.HeaderName = "X-CSRF-TOKEN"; // match your JS fetch token header
 });
 
-// Register EF Core In-Memory (prototype)
+// ✅ Register Claim Repository (Dependency Injection)
+
+
+// Optional: register other services (if any)
+// builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+
+// ------------------------------------------------------
+// 2️⃣ Configure Database Context
+// ------------------------------------------------------
+
+// ⚠️ If using in-memory DB for testing or demo:
+// ✅ Use SQLite for persistent local storage
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseInMemoryDatabase("CMCS-InMemory"));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register your repository implementation so controllers can receive IClaimRepository
-builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
+// OR if you have a real SQL Server connection, use this instead:
+// builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Optional: simple cookie auth (if you implemented AccountController login)
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Account/Login";
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
-    });
-
+// ------------------------------------------------------
+// 3️⃣ Build the App
+// ------------------------------------------------------
 var app = builder.Build();
 
-// Ensure uploads directory exists
-var uploadsPath = Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "uploads");
-if (!Directory.Exists(uploadsPath))
-{
-    Directory.CreateDirectory(uploadsPath);
-}
-
-// Seed in-memory DB (run AFTER app.Build())
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-    // create DB
-    context.Database.EnsureCreated();
-
-    // Seed lecturers if none exist
-    if (!context.Lecturers.Any())
-    {
-        context.Lecturers.AddRange(
-            new Lecturer { LecturerId = 1, FirstName = "John", LastName = "Smith", Email = "john.smith@university.com", HourlyRate = 250.00m, Department = "Computer Science" },
-            new Lecturer { LecturerId = 2, FirstName = "Sarah", LastName = "Johnson", Email = "sarah.johnson@university.com", HourlyRate = 275.00m, Department = "Information Technology" },
-            new Lecturer { LecturerId = 3, FirstName = "David", LastName = "Brown", Email = "david.brown@university.com", HourlyRate = 300.00m, Department = "Software Engineering" }
-        );
-
-        context.MonthlyClaims.AddRange(
-            new MonthlyClaim { ClaimId = 1, LecturerId = 1, Month = 10, Year = 2024, TotalHours = 40, TotalAmount = 10000, Status = ClaimStatus.Submitted, SubmissionDate = DateTime.Now.AddDays(-5) },
-            new MonthlyClaim { ClaimId = 2, LecturerId = 2, Month = 9, Year = 2024, TotalHours = 35, TotalAmount = 9625, Status = ClaimStatus.Approved, SubmissionDate = DateTime.Now.AddDays(-35) },
-            new MonthlyClaim { ClaimId = 3, LecturerId = 3, Month = 10, Year = 2024, TotalHours = 42, TotalAmount = 12600, Status = ClaimStatus.UnderReview, SubmissionDate = DateTime.Now.AddDays(-2) }
-        );
-
-        context.SaveChanges();
-    }
-}
-
-// Configure the HTTP request pipeline.
+// ------------------------------------------------------
+// 4️⃣ Configure HTTP Request Pipeline
+// ------------------------------------------------------
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-else
-{
-    app.UseDeveloperExceptionPage();
-}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// serve uploads folder explicitly (optional)
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "uploads")),
-    RequestPath = "/uploads"
-});
-
 app.UseRouting();
 
-app.UseAuthentication();
+app.UseAuthentication(); // optional — if using Identity/cookies
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+// ------------------------------------------------------
+// 5️⃣ Database Seeding (Optional)
+// ------------------------------------------------------
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.EnsureCreated();
 
-app.Run();
+    // Example: Seed a lecturer and multiple sample claims
+    if (!context.Lecturers.Any())
+    {
+        context.Lecturers.Add(new Lecturer
+        {
+            LecturerId = 1,
+            FirstName = "Owethu",
+            LastName = "Ntsholo",
+            Email = "owethu@example.com",
+            HourlyRate = 250
+        });
+        context.SaveChanges();
+    }
+    if (!context.MonthlyClaims.Any())
+    {
+        if (!context.MonthlyClaims.Any())
+        {
+            var claims = new List<MonthlyClaim>
+            {
+
+            };
+
+
+            context.MonthlyClaims.AddRange(claims);
+            context.SaveChanges();
+        }
+    }
+
+    // ------------------------------------------------------
+    // 6️⃣ Map Default Routes
+    // ------------------------------------------------------
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    app.Run();
+}

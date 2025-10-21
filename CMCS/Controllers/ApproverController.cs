@@ -1,93 +1,142 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using CMCS.Models;
-using CMCS.Repositories;
+using CMCS.Data;
 
 namespace CMCS.Controllers
 {
     public class ApproverController : Controller
     {
-        private readonly IClaimRepository _claimRepository;
+        private readonly ApplicationDbContext _context;
 
-        public ApproverController(IClaimRepository claimRepository)
+        public ApproverController(ApplicationDbContext context)
         {
-            _claimRepository = claimRepository;
+            _context = context;
         }
 
+        // === DASHBOARD ===
         public async Task<IActionResult> Dashboard()
         {
-            var pendingClaims = await _claimRepository.GetPendingClaimsAsync();
+            var pendingClaims = await _context.MonthlyClaims
+                .Include(c => c.Lecturer)
+                .Include(c => c.SupportingDocuments)
+                .Where(c => c.Status == ClaimStatus.Verify)
+                .OrderBy(c => c.SubmissionDate)
+                .ToListAsync();
+
             return View(pendingClaims);
         }
 
+        // === REVIEW CLAIM ===
         public async Task<IActionResult> ReviewClaim(int id)
         {
-            var claim = await _claimRepository.GetClaimByIdAsync(id);
+            var claim = await _context.MonthlyClaims
+                .Include(c => c.Lecturer)
+                .Include(c => c.SupportingDocuments)
+                .Include(c => c.ClaimApprovals)
+                .FirstOrDefaultAsync(c => c.ClaimId == id);
+
             if (claim == null)
-            {
                 return NotFound();
-            }
+
             return View(claim);
         }
 
+        // === APPROVE CLAIM ===
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveClaim(int claimId, string? comments, ApproverType approverType)
         {
             try
             {
-                // For demo purposes, using approver ID 1
-                int approverId = 1;
+                var claim = await _context.MonthlyClaims.FindAsync(claimId);
+                if (claim == null)
+                {
+                    TempData["ErrorMessage"] = "Claim not found.";
+                    return RedirectToAction(nameof(Dashboard));
+                }
 
-                var success = await _claimRepository.ApproveClaimAsync(claimId, approverId, approverType, comments);
-                if (success)
+                // Record approval
+                var approval = new ClaimApproval
                 {
-                    TempData["SuccessMessage"] = "Claim approved successfully!";
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Failed to approve claim. Please try again.";
-                }
+                    ClaimId = claimId,
+                    ApproverType = approverType,
+                    ApproverId = 1, // demo user ID
+                    Decision = true,
+                    Comments = comments,
+                    ApprovalDate = DateTime.Now
+                };
+
+                _context.ClaimApprovals.Add(approval);
+
+                // Update claim status
+                if (approverType == ApproverType.ProgrammeCoordinator)
+                    claim.Status = ClaimStatus.Approved;
+                else if (approverType == ApproverType.AcademicManager)
+                    claim.Status = ClaimStatus.Approved;
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Claim approved successfully!";
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
+                TempData["ErrorMessage"] = $"Error: {ex.Message}";
             }
 
-            return RedirectToAction("Dashboard");
+            return RedirectToAction(nameof(Dashboard));
         }
 
+        // === REJECT CLAIM ===
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectClaim(int claimId, string? comments, ApproverType approverType)
         {
             try
             {
-                // For demo purposes, using approver ID 1
-                int approverId = 1;
+                var claim = await _context.MonthlyClaims.FindAsync(claimId);
+                if (claim == null)
+                {
+                    TempData["ErrorMessage"] = "Claim not found.";
+                    return RedirectToAction(nameof(Dashboard));
+                }
 
-                var success = await _claimRepository.RejectClaimAsync(claimId, approverId, approverType, comments);
-                if (success)
+                // Record rejection
+                var approval = new ClaimApproval
                 {
-                    TempData["SuccessMessage"] = "Claim rejected successfully!";
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Failed to reject claim. Please try again.";
-                }
+                    ClaimId = claimId,
+                    ApproverType = approverType,
+                    ApproverId = 1,
+                    Decision = false,
+                    Comments = comments,
+                    ApprovalDate = DateTime.Now
+                };
+
+                _context.ClaimApprovals.Add(approval);
+                claim.Status = ClaimStatus.Rejected;
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Claim rejected successfully!";
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
+                TempData["ErrorMessage"] = $"Error: {ex.Message}";
             }
 
-            return RedirectToAction("Dashboard");
+            return RedirectToAction(nameof(Dashboard));
         }
 
+        // === CLAIM HISTORY ===
         public async Task<IActionResult> ClaimHistory()
         {
-            // For demo, get all claims
-            var allClaims = await _claimRepository.GetClaimsByLecturerAsync(1); // This would need to be updated for production
-            return View(allClaims);
+            var claims = await _context.MonthlyClaims
+                .Include(c => c.Lecturer)
+                .Include(c => c.SupportingDocuments)
+                .Include(c => c.ClaimApprovals)
+                .Where(c => c.LecturerId == 1)
+                .OrderByDescending(c => c.SubmissionDate)
+                .ToListAsync();
+
+            return View(claims);
         }
     }
 }

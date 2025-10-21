@@ -1,0 +1,42 @@
+﻿@model CMCS.Models.Lecturer
+@{
+    ViewData["Title"] = "Add Lecturer";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Add New Lecturer</h2>
+
+    <form asp-action="AddLecturer" method="post">
+        <div class="form-group mb-3">
+            <label asp-for="FirstName" class="form-label"></label>
+            <input asp-for="FirstName" class="form-control" required />
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="LastName" class="form-label"></label>
+            <input asp-for="LastName" class="form-control" required />
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" required type="email" />
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="HourlyRate" class="form-label">Hourly Rate (R)</label>
+            <input asp-for="HourlyRate" class="form-control" required type="number" step="0.01" />
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Add Lecturer</button>
+        <a asp-action="Dashboard" class="btn btn-secondary mt-3">Back</a>
+    </form>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger mt-3">@TempData["ErrorMessage"]</div>
+    }
+</div>

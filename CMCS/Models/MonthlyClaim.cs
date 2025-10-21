@@ -7,7 +7,7 @@ namespace CMCS.Models
     {
         Draft,
         Submitted,
-        UnderReview,
+        Verify,
         Approved,
         Rejected,
         Paid
@@ -21,17 +21,19 @@ namespace CMCS.Models
         [Required]
         public int LecturerId { get; set; }
 
-        [Required]
+       
         [Range(1, 12)]
         public int Month { get; set; }
 
-        [Required]
+       
         [Range(2020, 2030)]
         public int Year { get; set; }
 
         [Required]
         [Range(0, 200)]
         public decimal TotalHours { get; set; }
+
+        public decimal HourlyRate { get; set; }
 
         [Required]
         [Range(0, 100000)]
@@ -47,7 +49,7 @@ namespace CMCS.Models
 
         // Navigation properties
         [ForeignKey("LecturerId")]
-        public virtual Lecturer Lecturer { get; set; } = null!;
+        public Lecturer? Lecturer { get; set; } 
         public virtual ICollection<SupportingDocument> SupportingDocuments { get; set; } = new List<SupportingDocument>();
         public virtual ICollection<ClaimApproval> ClaimApprovals { get; set; } = new List<ClaimApproval>();
 

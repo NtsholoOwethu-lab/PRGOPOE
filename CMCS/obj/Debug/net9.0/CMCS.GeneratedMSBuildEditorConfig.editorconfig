@@ -44,6 +44,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwcm92ZXJcUmV2aWV3Q2xhaW0uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/CMCS/Views/Approver/Verify.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwcm92ZXJcVmVyaWZ5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/CMCS/Views/Home/About.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxBYm91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -58,6 +62,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/CMCS/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/CMCS/Views/Lecturer/AddLecturer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJcQWRkTGVjdHVyZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/CMCS/Views/Lecturer/ClaimDetails.cshtml]
@@ -82,6 +90,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/CMCS/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/CMCS/Views/Verify/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVyaWZ5XERhc2hib2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/CMCS/Views/Verify/ReviewClaim.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVyaWZ5XFJldmlld0NsYWltLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/CMCS/Views/_ViewImports.cshtml]
