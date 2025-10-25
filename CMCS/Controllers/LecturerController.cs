@@ -12,6 +12,10 @@ namespace CMCS.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<LecturerController> _logger;
 
+        // Hourly rate constraints
+        private const decimal HourlyRateMin = 50m;
+        private const decimal HourlyRateMax = 500m;
+
         public LecturerController(
             ApplicationDbContext context,
             IWebHostEnvironment environment,
@@ -26,10 +30,10 @@ namespace CMCS.Controllers
         public IActionResult Dashboard()
         {
             var lecturers = _context.Lecturers
-        .Include(l => l.MonthlyClaims)
-        .ToList();
+                .Include(l => l.MonthlyClaims)
+                .ToList();
+
             return View(lecturers);
-            
         }
 
         // === GET: Add Lecturer ===
@@ -44,6 +48,12 @@ namespace CMCS.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AddLecturer(Lecturer lecturer)
         {
+            // Server-side validation for hourly rate bounds
+            if (lecturer.HourlyRate < HourlyRateMin || lecturer.HourlyRate > HourlyRateMax)
+            {
+                ModelState.AddModelError(nameof(lecturer.HourlyRate), $"Hourly rate must be between {HourlyRateMin} and {HourlyRateMax}.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Lecturers.Add(lecturer);
@@ -53,7 +63,7 @@ namespace CMCS.Controllers
                 return RedirectToAction(nameof(Dashboard));
             }
 
-            TempData["ErrorMessage"] = "Please fill in all required fields.";
+            TempData["ErrorMessage"] = "Hourly rate must be between 50 and 500.";
             return View(lecturer);
         }
 
@@ -70,28 +80,39 @@ namespace CMCS.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CreateClaim(MonthlyClaim claim)
         {
-            if (ModelState.IsValid)
+            ViewBag.Lecturers = _context.Lecturers.ToList();
+
+            // Basic model validation first
+            if (!ModelState.IsValid)
             {
-                var lecturer = _context.Lecturers.FirstOrDefault(l => l.LecturerId == claim.LecturerId);
-                if (lecturer != null)
-                {
-                    claim.TotalAmount = claim.TotalHours * lecturer.HourlyRate;
-                    claim.Status = ClaimStatus.Submitted; // ✅ Automatically mark as Submitted
-                    claim.SubmissionDate = DateTime.Now;
-                }
-
-                _context.MonthlyClaims.Add(claim);
-                _context.SaveChanges();
-
-                TempData["SuccessMessage"] = "Claim submitted for verification!";
-
-                // ✅ Redirect to Verifier dashboard after submission
-                return RedirectToAction("Dashboard", "Verify");
+                return View(claim);
             }
 
-            // Re-populate dropdown on validation error
-            ViewBag.Lecturers = _context.Lecturers.ToList();
-            return View(claim);
+            var lecturer = _context.Lecturers.FirstOrDefault(l => l.LecturerId == claim.LecturerId);
+            if (lecturer == null)
+            {
+                ModelState.AddModelError("LecturerId", "Selected lecturer was not found.");
+                return View(claim);
+            }
+
+            // Validate lecturer hourly rate bounds before creating claim
+            if (lecturer.HourlyRate < HourlyRateMin || lecturer.HourlyRate > HourlyRateMax)
+            {
+                ModelState.AddModelError(string.Empty, $"The selected lecturer has an hourly rate outside the allowed range ({HourlyRateMin} - {HourlyRateMax}). Please correct the lecturer's rate before submitting a claim.");
+                return View(claim);
+            }
+
+            // Set the claim's hourly rate from lecturer and calculate total
+            claim.HourlyRate = lecturer.HourlyRate;
+            claim.TotalAmount = claim.TotalHours * claim.HourlyRate;
+            claim.Status = ClaimStatus.Submitted; // mark as Submitted
+            claim.SubmissionDate = DateTime.Now;
+
+            _context.MonthlyClaims.Add(claim);
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Claim submitted for verification!";
+            return RedirectToAction("Dashboard", "Verify");
         }
 
         // === POST: Delete Document (AJAX) ===

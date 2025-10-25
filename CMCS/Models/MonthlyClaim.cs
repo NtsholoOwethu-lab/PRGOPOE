@@ -30,9 +30,11 @@ namespace CMCS.Models
         public int Year { get; set; }
 
         [Required]
-        [Range(0, 200)]
+        [Range(2.00, 18.00)]
         public decimal TotalHours { get; set; }
 
+        
+       
         public decimal HourlyRate { get; set; }
 
         [Required]
