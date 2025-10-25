@@ -51,26 +51,6 @@ namespace CMCS.Controllers
         }
 
         // Generate a minimal PowerPoint summary (optional). Requires DocumentFormat.OpenXml.
-        public async Task<IActionResult> DownloadPresentation()
-        {
-            // create pptx in temp path and return as FileStreamResult
-            var tmp = Path.Combine(Path.GetTempPath(), $"CMCS_Summary_{Guid.NewGuid()}.pptx");
-
-            try
-            {
-                PresentationBuilder.BuildSimplePresentation(_db, tmp); // where is thew variable name
-                var fs = System.IO.File.OpenRead(tmp);
-                return File(fs, "application/vnd.openxmlformats-officedocument.presentationml.presentation", Path.GetFileName(tmp));
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "Failed to build presentation: " + ex.Message;
-                return RedirectToAction("Index");
-            }
-            finally
-            {
-                // The file will be deleted by OS temp cleanup; if you prefer immediate deletion, copy to memory stream and delete file.
-            }
-        }
+        
     }
 }

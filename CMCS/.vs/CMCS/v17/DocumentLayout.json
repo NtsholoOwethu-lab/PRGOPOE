@@ -3,12 +3,36 @@
   "WorkspaceRootPath": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\cmcs\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\cmcs\\views\\shared\\error.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|solutionrelative:views\\shared\\error.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\cmcs\\views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|solutionrelative:views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\cmcs\\views\\automation\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|solutionrelative:views\\automation\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\cmcs\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\cmcs\\services\\presentationbuilder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|solutionrelative:services\\presentationbuilder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\cmcs\\services\\automationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|solutionrelative:services\\automationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\cmcs\\controllers\\automationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|solutionrelative:controllers\\automationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\cmcs\\services\\encryptionservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD2F7BC-CBAB-4FE2-8243-84AA6EC4A138}|CMCS.csproj|solutionrelative:services\\encryptionservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,32 +42,110 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Error.cshtml",
+              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Views\\Shared\\Error.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\Error.cshtml",
+              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Views\\Shared\\Error.cshtml",
+              "RelativeToolTip": "Views\\Shared\\Error.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-25T15:32:52.301Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "_ValidationScriptsPartial.cshtml",
+              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeToolTip": "Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-25T15:32:50.077Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAAAF0AAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-25T15:32:46.614Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Views\\Automation\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Automation\\Index.cshtml",
+              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Views\\Automation\\Index.cshtml",
+              "RelativeToolTip": "Views\\Automation\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-25T15:32:03.729Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AutomationController.cs",
+              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Controllers\\AutomationController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AutomationController.cs",
+              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Controllers\\AutomationController.cs",
+              "RelativeToolTip": "Controllers\\AutomationController.cs",
+              "ViewState": "AgIAABsAAAAAAAAAAAAowDUAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-25T15:27:30.936Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AutomationService.cs",
+              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Services\\AutomationService.cs",
+              "RelativeDocumentMoniker": "Services\\AutomationService.cs",
+              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Services\\AutomationService.cs",
+              "RelativeToolTip": "Services\\AutomationService.cs",
+              "ViewState": "AgIAAHkAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-25T15:27:20.233Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "EncryptionService.cs",
+              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Services\\EncryptionService.cs",
+              "RelativeDocumentMoniker": "Services\\EncryptionService.cs",
+              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Services\\EncryptionService.cs",
+              "RelativeToolTip": "Services\\EncryptionService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-25T15:27:17.897Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAACUAAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-23T20:35:54.339Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "PresentationBuilder.cs",
-              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Services\\PresentationBuilder.cs",
-              "RelativeDocumentMoniker": "Services\\PresentationBuilder.cs",
-              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\Services\\PresentationBuilder.cs",
-              "RelativeToolTip": "Services\\PresentationBuilder.cs",
-              "ViewState": "AgIAAD8AAAAAAAAAAADgvzsAAAA0AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-23T20:29:39.43Z",
               "EditorCaption": ""
             }
           ]

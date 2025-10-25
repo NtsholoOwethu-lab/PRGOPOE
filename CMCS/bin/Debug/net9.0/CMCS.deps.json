@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v9.0": {
       "CMCS/1.0.0": {
         "dependencies": {
+          "DocumentFormat.OpenXml": "3.3.0",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.10",
           "Microsoft.EntityFrameworkCore.InMemory": "9.0.10",
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.10",
@@ -58,6 +59,28 @@
         }
       },
       "bootstrap/5.3.8": {},
+      "DocumentFormat.OpenXml/3.3.0": {
+        "dependencies": {
+          "DocumentFormat.OpenXml.Framework": "3.3.0"
+        },
+        "runtime": {
+          "lib/net8.0/DocumentFormat.OpenXml.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.3.0.0"
+          }
+        }
+      },
+      "DocumentFormat.OpenXml.Framework/3.3.0": {
+        "dependencies": {
+          "System.IO.Packaging": "8.0.1"
+        },
+        "runtime": {
+          "lib/net8.0/DocumentFormat.OpenXml.Framework.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.3.0.0"
+          }
+        }
+      },
       "Humanizer.Core/2.14.1": {
         "runtime": {
           "lib/net6.0/Humanizer.dll": {
@@ -1166,6 +1189,14 @@
           }
         }
       },
+      "System.IO.Packaging/8.0.1": {
+        "runtime": {
+          "lib/net8.0/System.IO.Packaging.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.1024.46610"
+          }
+        }
+      },
       "System.IO.Pipelines/7.0.0": {},
       "System.Memory/4.5.4": {},
       "System.Memory.Data/1.0.2": {
@@ -1373,6 +1404,20 @@
       "sha512": "sha512-1Pj2iMXZ0c0PVtgtAaxUM/0ptcu1a5nxdiQSUuPAILgwWI/kiY3Jd8A36ugCNF5v2FYzvGDPVlu1P1ZBdJLb/g==",
       "path": "bootstrap/5.3.8",
       "hashPath": "bootstrap.5.3.8.nupkg.sha512"
+    },
+    "DocumentFormat.OpenXml/3.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-JogRPJNiE6kKvbuCqVRX691pPWeGMqdQgjrUwRYkdpfkMmtElfqAgcRR73geYj7OtBeEpstldZXXzJw27LUI9w==",
+      "path": "documentformat.openxml/3.3.0",
+      "hashPath": "documentformat.openxml.3.3.0.nupkg.sha512"
+    },
+    "DocumentFormat.OpenXml.Framework/3.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-R5CLzEoeyr7XDB7g3NTxRobcU19agaxVAhGZm+fZUShJGiU4bw8oUgnA2BNFepigJckfFMayOBMAbV3kDXNInA==",
+      "path": "documentformat.openxml.framework/3.3.0",
+      "hashPath": "documentformat.openxml.framework.3.3.0.nupkg.sha512"
     },
     "Humanizer.Core/2.14.1": {
       "type": "package",
@@ -1877,6 +1922,13 @@
       "sha512": "sha512-yxGIQd3BFK7F6S62/7RdZk3C/mfwyVxvh6ngd1VYMBmbJ1YZZA9+Ku6suylVtso0FjI0wbElpJ0d27CdsyLpBQ==",
       "path": "system.identitymodel.tokens.jwt/6.35.0",
       "hashPath": "system.identitymodel.tokens.jwt.6.35.0.nupkg.sha512"
+    },
+    "System.IO.Packaging/8.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-KYkIOAvPexQOLDxPO2g0BVoWInnQhPpkFzRqvNrNrMhVT6kqhVr0zEb6KCHlptLFukxnZrjuMVAnxK7pOGUYrw==",
+      "path": "system.io.packaging/8.0.1",
+      "hashPath": "system.io.packaging.8.0.1.nupkg.sha512"
     },
     "System.IO.Pipelines/7.0.0": {
       "type": "package",
