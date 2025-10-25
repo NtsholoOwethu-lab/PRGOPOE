@@ -1,15 +1,15 @@
 ﻿using CMCS.Data;
-
 using CMCS.Models;
-using Microsoft.EntityFrameworkCore;
+using CMCS.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ------------------------------------------------------
+
 // 1️⃣ Configure Services
-// ------------------------------------------------------
+
 
 // Add MVC Controllers and Views
 builder.Services.AddControllersWithViews();
@@ -23,33 +23,28 @@ builder.Services.AddAntiforgery(options =>
     options.HeaderName = "X-CSRF-TOKEN"; // match your JS fetch token header
 });
 
-// ✅ Register Claim Repository (Dependency Injection)
 
 
-// Optional: register other services (if any)
-// builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 
-// ------------------------------------------------------
+
+
 // 2️⃣ Configure Database Context
-// ------------------------------------------------------
 
-// ⚠️ If using in-memory DB for testing or demo:
-// ✅ Use SQLite for persistent local storage
+
+//  If using in-memory DB for testing or demo:
+// Use SQLite for persistent local storage
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<AutomationService>(); // added here
 
-// OR if you have a real SQL Server connection, use this instead:
-// builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ------------------------------------------------------
+
 // 3️⃣ Build the App
-// ------------------------------------------------------
+
 var app = builder.Build();
 
-// ------------------------------------------------------
 // 4️⃣ Configure HTTP Request Pipeline
-// ------------------------------------------------------
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -64,9 +59,9 @@ app.UseRouting();
 app.UseAuthentication(); // optional — if using Identity/cookies
 app.UseAuthorization();
 
-// ------------------------------------------------------
+
 // 5️⃣ Database Seeding (Optional)
-// ------------------------------------------------------
+
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -100,9 +95,9 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // ------------------------------------------------------
+    
     // 6️⃣ Map Default Routes
-    // ------------------------------------------------------
+    
     app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}");
