@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "ZZx+36flUcg=",
+  "dgSpecHash": "DeNwqlLolvc=",
   "success": true,
   "projectFilePath": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\CMCS\\CMCS.csproj",
   "expectedPackageFiles": [
@@ -66,6 +66,7 @@
     "C:\\Users\\lab_services_student\\.nuget\\packages\\mono.texttemplating\\3.0.0\\mono.texttemplating.3.0.0.nupkg.sha512",
     "C:\\Users\\lab_services_student\\.nuget\\packages\\mysqlconnector\\2.4.0\\mysqlconnector.2.4.0.nupkg.sha512",
     "C:\\Users\\lab_services_student\\.nuget\\packages\\pomelo.entityframeworkcore.mysql\\9.0.0\\pomelo.entityframeworkcore.mysql.9.0.0.nupkg.sha512",
+    "C:\\Users\\lab_services_student\\.nuget\\packages\\questpdf\\2025.7.3\\questpdf.2025.7.3.nupkg.sha512",
     "C:\\Users\\lab_services_student\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.1.10\\sqlitepclraw.bundle_e_sqlite3.2.1.10.nupkg.sha512",
     "C:\\Users\\lab_services_student\\.nuget\\packages\\sqlitepclraw.core\\2.1.10\\sqlitepclraw.core.2.1.10.nupkg.sha512",
     "C:\\Users\\lab_services_student\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.1.10\\sqlitepclraw.lib.e_sqlite3.2.1.10.nupkg.sha512",

@@ -141,5 +141,27 @@ namespace CMCS.Controllers
                 return Json(new { success = false, message = "Error deleting document." });
             }
         }
+        // GET: Lecturer/Edit/5
+        [HttpGet]
+        public async Task<IActionResult> EditLecturer(int id)
+        {
+            var lecturer = await _context.Lecturers.FindAsync(id);
+            if (lecturer == null) return NotFound();
+            return View(lecturer);
+        }
+
+        // POST: Lecturer/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditLecturer(int id, Lecturer lecturer)
+        {
+            if (id != lecturer.LecturerId) return BadRequest();
+            if (!ModelState.IsValid) return View(lecturer);
+
+            _context.Update(lecturer);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Lecturer updated.";
+            return RedirectToAction(nameof(Dashboard));
+        }
     }
 }

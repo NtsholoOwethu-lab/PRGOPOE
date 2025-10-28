@@ -1,6 +1,5 @@
 ﻿using CMCS.Data;
 using CMCS.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
@@ -9,21 +8,13 @@ namespace CMCS.Controllers
     public class AutomationController : Controller
     {
         private readonly AutomationService _automation;
-        private readonly ApplicationDbContext _db;
-        private readonly IWebHostEnvironment _env;
 
-        public AutomationController(AutomationService automation, ApplicationDbContext db, IWebHostEnvironment env)
+        public AutomationController(AutomationService automation)
         {
             _automation = automation;
-            _db = db;
-            _env = env;
         }
 
-        // Simple dashboard / actions page (can be a modal or button)
-        public IActionResult Index()
-        {
-            return View(); // we'll give a tiny view snippet below
-        }
+        public IActionResult Index() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -38,19 +29,23 @@ namespace CMCS.Controllers
             {
                 TempData["ErrorMessage"] = "Automation failed: " + ex.Message;
             }
+
             return RedirectToAction("Index");
         }
 
-        // Download CSV of approved claims
-        public async Task<IActionResult> DownloadApprovedClaimsCsv(DateTime? from = null, DateTime? to = null)
+        [HttpGet]
+        public async Task<IActionResult> DownloadApprovedClaimsCsv()
         {
-            var csv = await _automation.BuildApprovedClaimsCsvAsync(from, to);
+            var csv = await _automation.BuildApprovedClaimsCsvAsync();
             var bytes = Encoding.UTF8.GetBytes(csv);
-            var fileName = $"CMCS_ApprovedClaims_{DateTime.Now:yyyyMMdd_HHmm}.csv";
-            return File(bytes, "text/csv", fileName);
+            return File(bytes, "text/csv", $"ApprovedClaims_{DateTime.Now:yyyyMMdd}.csv");
         }
 
-        // Generate a minimal PowerPoint summary (optional). Requires DocumentFormat.OpenXml.
-        
+        [HttpGet]
+        public async Task<IActionResult> GenerateInvoicePdf(int id)
+        {
+            var pdfBytes = await _automation.BuildInvoicePdfAsync(id);
+            return File(pdfBytes, "application/pdf", $"Invoice_Claim_{id}.pdf");
+        }
     }
 }

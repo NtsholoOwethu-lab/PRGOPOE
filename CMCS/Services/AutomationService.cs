@@ -2,6 +2,8 @@
 using CMCS.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
 using System.Text;
 
 namespace CMCS.Services
@@ -20,17 +22,10 @@ namespace CMCS.Services
         private readonly ApplicationDbContext _db;
         private readonly ILogger<AutomationService> _logger;
 
-        // Auto rules thresholds (tweak as required)
+        // Automation thresholds
         private const decimal ManagerAutoApproveAmountThreshold = 20000m;
         private const decimal VerifierAutoVerifyHoursThreshold = 50m;
         private const decimal VerifierAutoVerifyAmountThreshold = 5000m;
-
-        // Validation / approval policy (single source of truth)
-        private const decimal HourlyRateMin = 50m;
-        private const decimal HourlyRateMax = 500m;
-        private const decimal TotalHoursMin = 2m;
-        private const decimal TotalHoursMax = 18m;
-        private const int MaxMonthsBack = 12; // claims older than this (in months) are invalid
 
         public AutomationService(ApplicationDbContext db, ILogger<AutomationService> logger)
         {
@@ -38,16 +33,13 @@ namespace CMCS.Services
             _logger = logger;
         }
 
-        /// <summary>
-        /// Run a single pass of automation rules. Lightweight and transactional.
-        /// - First applies validation (auto-decline) for Submitted/Verify claims
-        /// - Then runs auto-verify and auto-approve rules for eligible claims
-        /// </summary>
+        
+        // 1️⃣ AUTOMATION PROCESS
+        
         public async Task<AutomationResult> RunAutomationAsync(CancellationToken cancellation = default)
         {
             var result = new AutomationResult();
 
-            // We'll process claims in Submitted or Verify status
             var claims = await _db.MonthlyClaims
                 .Include(c => c.Lecturer)
                 .Include(c => c.ClaimApprovals)
@@ -59,68 +51,34 @@ namespace CMCS.Services
             {
                 foreach (var claim in claims)
                 {
-                    // --- 0) First, run validation rules (same as verifier/approver)
-                    var violations = GetParameterViolations(claim);
-                    if (violations.Any())
+                    // Validate claim before processing
+                    var validationMessage = ValidateClaim(claim);
+                    if (validationMessage != null)
                     {
-                        // Auto-decline and record reason
                         claim.Status = ClaimStatus.Rejected;
-
-                        var declineApproval = new ClaimApproval
-                        {
-                            ClaimId = claim.ClaimId,
-                            ApproverType = ApproverType.ProgrammeCoordinator,
-                            ApproverId = 0, // system
-                            Decision = false,
-                            Comments = "Auto-declined by automation rules: " + string.Join("; ", violations),
-                            ApprovalDate = DateTime.UtcNow
-                        };
-                        _db.ClaimApprovals.Add(declineApproval);
                         result.RejectedCount++;
-                        result.Messages.Add($"Auto-declined claim {claim.ClaimId}: {string.Join("; ", violations)}");
-
-                        // Skip any further processing for this claim
+                        result.Messages.Add($"Claim {claim.ClaimId} rejected: {validationMessage}");
                         continue;
                     }
 
-                    // --- 1) Auto-verify rule (only for Submitted)
+                    // Auto-verify rule
                     if (claim.Status == ClaimStatus.Submitted)
                     {
-                        if (claim.TotalHours <= VerifierAutoVerifyHoursThreshold
-                            && claim.TotalAmount <= VerifierAutoVerifyAmountThreshold)
+                        if (claim.TotalHours <= VerifierAutoVerifyHoursThreshold &&
+                            claim.TotalAmount <= VerifierAutoVerifyAmountThreshold)
                         {
                             claim.Status = ClaimStatus.Verify;
-                            var approval = new ClaimApproval
-                            {
-                                ClaimId = claim.ClaimId,
-                                ApproverType = ApproverType.ProgrammeCoordinator,
-                                ApproverId = 0, // system
-                                Decision = true,
-                                Comments = "Auto-verified by automation rules.",
-                                ApprovalDate = DateTime.UtcNow
-                            };
-                            _db.ClaimApprovals.Add(approval);
                             result.VerifiedCount++;
                             result.Messages.Add($"Auto-verified claim {claim.ClaimId}.");
                         }
                     }
 
-                    // --- 2) Auto-approve rule (only for Verify)
+                    // Auto-approve rule
                     if (claim.Status == ClaimStatus.Verify)
                     {
                         if (claim.TotalAmount <= ManagerAutoApproveAmountThreshold)
                         {
                             claim.Status = ClaimStatus.Approved;
-                            var approval = new ClaimApproval
-                            {
-                                ClaimId = claim.ClaimId,
-                                ApproverType = ApproverType.AcademicManager,
-                                ApproverId = 0,
-                                Decision = true,
-                                Comments = "Auto-approved by automation rules.",
-                                ApprovalDate = DateTime.UtcNow
-                            };
-                            _db.ClaimApprovals.Add(approval);
                             result.ApprovedCount++;
                             result.TotalApprovedAmount += claim.TotalAmount;
                             result.Messages.Add($"Auto-approved claim {claim.ClaimId}.");
@@ -130,7 +88,6 @@ namespace CMCS.Services
 
                 await _db.SaveChangesAsync(cancellation);
                 await tx.CommitAsync(cancellation);
-
                 result.Messages.Add($"Processed {claims.Count} claims.");
             }
             catch (Exception ex)
@@ -144,17 +101,31 @@ namespace CMCS.Services
             return result;
         }
 
-        /// <summary>
-        /// Build CSV report for approved claims in a date range (nullable range => all).
-        /// Returns CSV text (caller streams it).
-        /// </summary>
+        
+        // 2️⃣ CLAIM VALIDATION
+        
+        private string ValidateClaim(MonthlyClaim claim)
+        {
+            if (claim.HourlyRate < 50 || claim.HourlyRate > 500)
+                return "Hourly rate must be between 50 and 500.";
+
+            if (claim.TotalHours < 2 || claim.TotalHours > 18)
+                return "Total claimed hours must be between 2 and 18.";
+
+            if (claim.Month > DateTime.Now.Month && claim.Year == DateTime.Now.Year)
+                return "Claim month cannot be in the future.";
+
+            return null; // Valid claim
+        }
+
+        
+        // 3️⃣ CSV REPORT GENERATION
+        
         public async Task<string> BuildApprovedClaimsCsvAsync(DateTime? from = null, DateTime? to = null, CancellationToken cancellation = default)
         {
             var query = _db.MonthlyClaims
                 .Include(c => c.Lecturer)
-                .Include(c => c.ClaimApprovals)
-                .Where(c => c.Status == ClaimStatus.Approved)
-                .AsQueryable();
+                .Where(c => c.Status == ClaimStatus.Approved);
 
             if (from.HasValue) query = query.Where(c => c.SubmissionDate >= from.Value);
             if (to.HasValue) query = query.Where(c => c.SubmissionDate <= to.Value);
@@ -162,68 +133,50 @@ namespace CMCS.Services
             var claims = await query.OrderBy(c => c.SubmissionDate).ToListAsync(cancellation);
 
             var sb = new StringBuilder();
-            sb.AppendLine("ClaimId,Lecturer,Email,Month,Year,TotalHours,HourlyRate,TotalAmount,ApprovalDate,Status");
+            sb.AppendLine("ClaimId,Lecturer,Email,Month,Year,TotalHours,HourlyRate,TotalAmount,Status");
 
             foreach (var c in claims)
             {
-                var approvDate = c.ClaimApprovals.OrderByDescending(a => a.ApprovalDate).FirstOrDefault()?.ApprovalDate;
-                sb.AppendLine(string.Join(",",
-                    c.ClaimId,
-                    QuoteCsv($"{c.Lecturer?.FirstName} {c.Lecturer?.LastName}"),
-                    QuoteCsv(c.Lecturer?.Email ?? ""),
-                    c.Month,
-                    c.Year,
-                    c.TotalHours,
-                    c.HourlyRate,
-                    c.TotalAmount,
-                    approvDate?.ToString("yyyy-MM-dd") ?? "",
-                    c.Status.ToString()
-                ));
+                sb.AppendLine($"{c.ClaimId},{c.Lecturer?.FirstName} {c.Lecturer?.LastName},{c.Lecturer?.Email},{c.Month},{c.Year},{c.TotalHours},{c.HourlyRate},{c.TotalAmount},{c.Status}");
             }
 
             return sb.ToString();
-
-            static string QuoteCsv(string s)
-            {
-                if (s == null) s = "";
-                return $"\"{s.Replace("\"", "\"\"")}\"";
-            }
         }
 
-        /// <summary>
-        /// Return parameter violations for a claim (empty list => no violations).
-        /// This mirrors the verifier/approver rules (single source of truth).
-        /// </summary>
-        private List<string> GetParameterViolations(MonthlyClaim claim)
+       
+        // 4️⃣ INVOICE PDF GENERATION
+        
+        public async Task<byte[]> BuildInvoicePdfAsync(int claimId)
         {
-            var violations = new List<string>();
+            var claim = await _db.MonthlyClaims
+                .Include(c => c.Lecturer)
+                .FirstOrDefaultAsync(c => c.ClaimId == claimId);
 
-            // hourly rate
-            if (claim.HourlyRate < HourlyRateMin || claim.HourlyRate > HourlyRateMax)
-                violations.Add($"Hourly rate ({claim.HourlyRate}) must be between {HourlyRateMin} and {HourlyRateMax}.");
+            if (claim == null)
+                throw new ArgumentException("Claim not found.");
 
-            // total hours
-            if (claim.TotalHours < TotalHoursMin || claim.TotalHours > TotalHoursMax)
-                violations.Add($"Total hours ({claim.TotalHours}) must be between {TotalHoursMin} and {TotalHoursMax}.");
-
-            // claim period (month/year)
-            try
+            var doc = Document.Create(container =>
             {
-                var claimPeriod = new DateTime(claim.Year, claim.Month, 1);
-                var now = DateTime.Now;
-                if (claimPeriod > new DateTime(now.Year, now.Month, 1))
-                    violations.Add("Claim period cannot be in the future.");
+                container.Page(page =>
+                {
+                    page.Margin(30);
+                    page.Content().Column(col =>
+                    {
+                        col.Item().Text($"Invoice for Claim #{claim.ClaimId}").Bold().FontSize(20);
+                        col.Item().Text($"Lecturer: {claim.Lecturer.FirstName} {claim.Lecturer.LastName}");
+                        col.Item().Text($"Email: {claim.Lecturer.Email}");
+                        col.Item().Text($"Period: {claim.Month}/{claim.Year}");
+                        col.Item().Text($"Hours: {claim.TotalHours} × R{claim.HourlyRate:N2}");
+                        col.Item().Text($"Total: R{claim.TotalAmount:N2}").Bold();
+                        col.Item().PaddingTop(20).LineHorizontal(1);
+                        col.Item().PaddingTop(10).Text("Thank you for your contribution!");
+                    });
+                });
+            });
 
-                var monthsDiff = ((now.Year - claimPeriod.Year) * 12) + (now.Month - claimPeriod.Month);
-                if (monthsDiff > MaxMonthsBack)
-                    violations.Add($"Claim period is older than {MaxMonthsBack} months.");
-            }
-            catch
-            {
-                violations.Add("Claim period invalid.");
-            }
-
-            return violations;
+            using var ms = new MemoryStream();
+            doc.GeneratePdf(ms);
+            return ms.ToArray();
         }
     }
 }
