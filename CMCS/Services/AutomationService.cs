@@ -1,6 +1,8 @@
 ﻿using CMCS.Data;
 using CMCS.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace CMCS.Services
 {
@@ -18,10 +20,17 @@ namespace CMCS.Services
         private readonly ApplicationDbContext _db;
         private readonly ILogger<AutomationService> _logger;
 
-        // Simple thresholds - change as required
+        // Auto rules thresholds (tweak as required)
         private const decimal ManagerAutoApproveAmountThreshold = 20000m;
         private const decimal VerifierAutoVerifyHoursThreshold = 50m;
         private const decimal VerifierAutoVerifyAmountThreshold = 5000m;
+
+        // Validation / approval policy (single source of truth)
+        private const decimal HourlyRateMin = 50m;
+        private const decimal HourlyRateMax = 500m;
+        private const decimal TotalHoursMin = 2m;
+        private const decimal TotalHoursMax = 18m;
+        private const int MaxMonthsBack = 12; // claims older than this (in months) are invalid
 
         public AutomationService(ApplicationDbContext db, ILogger<AutomationService> logger)
         {
@@ -30,7 +39,9 @@ namespace CMCS.Services
         }
 
         /// <summary>
-        /// Run a single pass of automation rules. Lightweight and synchronous.
+        /// Run a single pass of automation rules. Lightweight and transactional.
+        /// - First applies validation (auto-decline) for Submitted/Verify claims
+        /// - Then runs auto-verify and auto-approve rules for eligible claims
         /// </summary>
         public async Task<AutomationResult> RunAutomationAsync(CancellationToken cancellation = default)
         {
@@ -48,7 +59,31 @@ namespace CMCS.Services
             {
                 foreach (var claim in claims)
                 {
-                    // 1) Auto-verify rule (only for Submitted)
+                    // --- 0) First, run validation rules (same as verifier/approver)
+                    var violations = GetParameterViolations(claim);
+                    if (violations.Any())
+                    {
+                        // Auto-decline and record reason
+                        claim.Status = ClaimStatus.Rejected;
+
+                        var declineApproval = new ClaimApproval
+                        {
+                            ClaimId = claim.ClaimId,
+                            ApproverType = ApproverType.ProgrammeCoordinator,
+                            ApproverId = 0, // system
+                            Decision = false,
+                            Comments = "Auto-declined by automation rules: " + string.Join("; ", violations),
+                            ApprovalDate = DateTime.UtcNow
+                        };
+                        _db.ClaimApprovals.Add(declineApproval);
+                        result.RejectedCount++;
+                        result.Messages.Add($"Auto-declined claim {claim.ClaimId}: {string.Join("; ", violations)}");
+
+                        // Skip any further processing for this claim
+                        continue;
+                    }
+
+                    // --- 1) Auto-verify rule (only for Submitted)
                     if (claim.Status == ClaimStatus.Submitted)
                     {
                         if (claim.TotalHours <= VerifierAutoVerifyHoursThreshold
@@ -70,11 +105,9 @@ namespace CMCS.Services
                         }
                     }
 
-                    // Reload approvals if we changed status in this pass
-                    // 2) Auto-approve rule (only for Verify)
+                    // --- 2) Auto-approve rule (only for Verify)
                     if (claim.Status == ClaimStatus.Verify)
                     {
-                        // Example: if total amount is small enough, auto-approve by manager
                         if (claim.TotalAmount <= ManagerAutoApproveAmountThreshold)
                         {
                             claim.Status = ClaimStatus.Approved;
@@ -93,9 +126,6 @@ namespace CMCS.Services
                             result.Messages.Add($"Auto-approved claim {claim.ClaimId}.");
                         }
                     }
-
-                    // if some rule rejected (none by default) - example placeholder:
-                    // if (someCondition) { claim.Status = ClaimStatus.Rejected; ... }
                 }
 
                 await _db.SaveChangesAsync(cancellation);
@@ -131,7 +161,7 @@ namespace CMCS.Services
 
             var claims = await query.OrderBy(c => c.SubmissionDate).ToListAsync(cancellation);
 
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             sb.AppendLine("ClaimId,Lecturer,Email,Month,Year,TotalHours,HourlyRate,TotalAmount,ApprovalDate,Status");
 
             foreach (var c in claims)
@@ -158,6 +188,42 @@ namespace CMCS.Services
                 if (s == null) s = "";
                 return $"\"{s.Replace("\"", "\"\"")}\"";
             }
+        }
+
+        /// <summary>
+        /// Return parameter violations for a claim (empty list => no violations).
+        /// This mirrors the verifier/approver rules (single source of truth).
+        /// </summary>
+        private List<string> GetParameterViolations(MonthlyClaim claim)
+        {
+            var violations = new List<string>();
+
+            // hourly rate
+            if (claim.HourlyRate < HourlyRateMin || claim.HourlyRate > HourlyRateMax)
+                violations.Add($"Hourly rate ({claim.HourlyRate}) must be between {HourlyRateMin} and {HourlyRateMax}.");
+
+            // total hours
+            if (claim.TotalHours < TotalHoursMin || claim.TotalHours > TotalHoursMax)
+                violations.Add($"Total hours ({claim.TotalHours}) must be between {TotalHoursMin} and {TotalHoursMax}.");
+
+            // claim period (month/year)
+            try
+            {
+                var claimPeriod = new DateTime(claim.Year, claim.Month, 1);
+                var now = DateTime.Now;
+                if (claimPeriod > new DateTime(now.Year, now.Month, 1))
+                    violations.Add("Claim period cannot be in the future.");
+
+                var monthsDiff = ((now.Year - claimPeriod.Year) * 12) + (now.Month - claimPeriod.Month);
+                if (monthsDiff > MaxMonthsBack)
+                    violations.Add($"Claim period is older than {MaxMonthsBack} months.");
+            }
+            catch
+            {
+                violations.Add("Claim period invalid.");
+            }
+
+            return violations;
         }
     }
 }

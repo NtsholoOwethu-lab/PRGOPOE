@@ -602,3 +602,7 @@ C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\De
 C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\DocumentFormat.OpenXml.dll
 C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\DocumentFormat.OpenXml.Framework.dll
 C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\System.IO.Packaging.dll
+C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\EntityFramework.SqlServer.dll
+C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\EntityFramework.dll
+C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\Microsoft.AspNet.Identity.Core.dll
+C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\CMCS\bin\Debug\net9.0\Microsoft.AspNet.Identity.EntityFramework.dll
