@@ -1,0 +1,133 @@
+﻿@model PROGCMCS.Models.MonthlyClaim
+@{
+    ViewData["Title"] = "Submit New Claim";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-plus-circle me-2"></i>Submit New Monthly Claim</h2>
+        <p class="lead">Complete the form below to submit your monthly claim.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="CreateClaim"
+              asp-controller="Lecturer"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <!-- Lecturer selection -->
+            <div class="mb-3">
+                <label for="LecturerId" class="form-label">Lecturer *</label>
+                <select asp-for="LecturerId" id="LecturerId" class="form-select" required>
+                    <option value="">Select Lecturer</option>
+                    @if (ViewBag.Lecturers != null)
+                    {
+                        foreach (var l in (IEnumerable<dynamic>)ViewBag.Lecturers)
+                        {
+                            <option value="@l.LecturerId" data-rate="@l.HourlyRate">@l.FirstName @l.LastName</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <!-- Month + Year -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Month" class="form-label">Month *</label>
+                        <input asp-for="Month" type="number" min="1" max="12" class="form-control" required />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Year" class="form-label">Year *</label>
+                        <input asp-for="Year" type="number" value="@DateTime.Now.Year" min="2020" max="2030" class="form-control" required />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hours + Rate -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="TotalHours" class="form-label">Total Hours *</label>
+                        <input asp-for="TotalHours" type="number" id="TotalHours" class="form-control" min="2" step="18+" required />
+                        <span asp-validation-for="TotalHours" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="HourlyRateDisplay" class="form-label">Hourly Rate</label>
+                        <input type="text" id="HourlyRateDisplay" class="form-control" value="R 0.00" readonly />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total -->
+            <input asp-for="TotalAmount" type="hidden" id="TotalAmount" />
+            <div class="mb-3">
+                <label for="TotalAmountDisplay" class="form-label">Total Amount</label>
+                <input type="text" id="TotalAmountDisplay" class="form-control" value="R 0.00" readonly />
+            </div>
+
+            <!-- Notes -->
+            <div class="mb-3">
+                <label asp-for="Notes" class="form-label">Notes</label>
+                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+            </div>
+
+            <!-- File Upload -->
+            <div class="mb-4">
+                <label class="form-label">Supporting Documents</label>
+                <div class="border rounded p-3 bg-light text-center" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">Click below to browse and upload files</p>
+                    <input type="file" id="fileInput" name="Files" multiple accept=".pdf,.docx,.xlsx,.jpg,.jpeg,.png" />
+                    <small class="form-text d-block mt-2">
+                        Supported: PDF, DOCX, XLSX, JPG, PNG (Max 10MB each)
+                    </small>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="text-end">
+                <a href="@Url.Action("Dashboard", "Lecturer")" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-success">Submit Claim</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const lecturerSelect = document.getElementById('LecturerId');
+            const hoursInput = document.getElementById('TotalHours');
+            const rateDisplay = document.getElementById('HourlyRateDisplay');
+            const totalHidden = document.getElementById('TotalAmount');
+            const totalDisplay = document.getElementById('TotalAmountDisplay');
+            let rate = 0;
+
+            // === Hourly rate handling ===
+            lecturerSelect.addEventListener('change', () => {
+                const selected = lecturerSelect.options[lecturerSelect.selectedIndex];
+                rate = parseFloat(selected.getAttribute('data-rate')) || 0;
+                rateDisplay.value = "R " + rate.toFixed(2);
+                calculateTotal();
+            });
+
+            hoursInput.addEventListener('input', calculateTotal);
+
+            function calculateTotal() {
+                const hours = parseFloat(hoursInput.value) || 0;
+                const total = hours * rate;
+                totalHidden.value = total.toFixed(2);
+                totalDisplay.value = "R " + total.toFixed(2);
+            }
+        });
+    </script>
+}

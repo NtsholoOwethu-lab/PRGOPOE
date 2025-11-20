@@ -2,72 +2,59 @@
 using CMCS.Models;
 using CMCS.Services;
 using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // 1️⃣ Configure Services
 
-
-// Add MVC Controllers and Views
 builder.Services.AddControllersWithViews();
-
-// Add HttpContext accessor for Razor Views and Controllers
 builder.Services.AddHttpContextAccessor();
 
-// Register Antiforgery service (for CSRF protection)
+// CSRF protection
 builder.Services.AddAntiforgery(options =>
 {
-    options.HeaderName = "X-CSRF-TOKEN"; // match your JS fetch token header
+    options.HeaderName = "X-CSRF-TOKEN";
 });
 
-
-
-
-
-
-// 2️⃣ Configure Database Context
-
-
-//  If using in-memory DB for testing or demo:
-// Use SQLite for persistent local storage
+// EF Core SQL Server with retry on failure
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<AutomationService>(); // added here
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure()
+    )
+);
 
+// Identity
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
+// Custom Services
+builder.Services.AddScoped<AutomationService>();
 
-// 3️⃣ Build the App
-
+// 2️⃣ Build the App
 var app = builder.Build();
 
-// 4️⃣ Configure HTTP Request Pipeline
-
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthentication(); // optional — if using Identity/cookies
-app.UseAuthorization();
-
-
-// 5️⃣ Database Seeding (Optional)
-
+// 3️⃣ Database Initialization & Seeding
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    // Example: Seed a lecturer and multiple sample claims
+    // Apply migrations (or use EnsureCreated for quick testing)
+    context.Database.Migrate();
+
+    // Create roles if they don't exist
+    string[] roles = { "Admin", "HR", "Lecturer", "Verifier", "Approver" };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
+    }
+
+    // Seed Lecturers
     if (!context.Lecturers.Any())
     {
         context.Lecturers.Add(new Lecturer
@@ -78,29 +65,35 @@ using (var scope = app.Services.CreateScope())
             Email = "owethu@example.com",
             HourlyRate = 250
         });
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
+
+    // Seed Monthly Claims (empty list for now)
     if (!context.MonthlyClaims.Any())
     {
-        if (!context.MonthlyClaims.Any())
-        {
-            var claims = new List<MonthlyClaim>
-            {
-
-            };
-
-
-            context.MonthlyClaims.AddRange(claims);
-            context.SaveChanges();
-        }
+        context.MonthlyClaims.AddRange(new List<MonthlyClaim>());
+        await context.SaveChangesAsync();
     }
-
-    
-    // 6️⃣ Map Default Routes
-    
-    app.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}");
-
-    app.Run();
 }
+
+// 4️⃣ Configure HTTP Request Pipeline
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+
+// 5️⃣ Map Routes
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
+
+app.Run();

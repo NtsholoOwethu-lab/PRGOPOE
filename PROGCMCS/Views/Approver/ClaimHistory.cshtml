@@ -1,0 +1,70 @@
+﻿@model List<PROGCMCS.Models.MonthlyClaim>
+@{
+    ViewData["Title"] = "Claim History";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-history me-2"></i>Claim History</h2>
+        <p class="lead">View all processed claims.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">All Claims</h5>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Claim ID</th>
+                            <th>Lecturer</th>
+                            <th>Department</th>
+                            <th>Period</th>
+                            <th>Hours</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Submission Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var claim in Model)
+                        {
+                            <tr>
+                                <td>@claim.ClaimId</td>
+                                <td>@claim.Lecturer?.FirstName @claim.Lecturer?.LastName</td>
+                                <td>@claim.Lecturer?.Department</td>
+                                <td>@claim.Month/@claim.Year</td>
+                                <td>@claim.TotalHours</td>
+                                <td>R @claim.TotalAmount.ToString("N2")</td>
+                                <td>
+                                    <span class="claim-status status-@claim.Status.ToString().ToLower()">
+                                        @claim.Status
+                                    </span>
+                                </td>
+                                <td>@claim.SubmissionDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <a href="@Url.Action("ReviewClaim", new { id = claim.ClaimId })" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5>No claims found</h5>
+                <p class="text-muted">No claims have been submitted yet.</p>
+            </div>
+        }
+  

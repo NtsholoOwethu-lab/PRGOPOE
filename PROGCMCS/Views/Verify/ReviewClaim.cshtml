@@ -1,0 +1,101 @@
+﻿@model PROGCMCS.Models.MonthlyClaim
+@{
+    ViewData["Title"] = "Review Claim";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h3><i class="fas fa-file-alt me-2"></i>Claim Details</h3>
+    </div>
+    <div class="col-md-4 text-end">
+        <a asp-action="Dashboard" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<hr />
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-4">Lecturer</dt>
+            <dd class="col-sm-8">@Model.Lecturer?.FirstName @Model.Lecturer?.LastName</dd>
+
+            <dt class="col-sm-4">Department</dt>
+            <dd class="col-sm-8">@Model.Lecturer?.Department</dd>
+
+            <dt class="col-sm-4">Period</dt>
+            <dd class="col-sm-8">@Model.Month/@Model.Year</dd>
+
+            <dt class="col-sm-4">Total Hours</dt>
+            <dd class="col-sm-8">@Model.TotalHours</dd>
+
+            <dt class="col-sm-4">Hourly Rate</dt>
+            <dd class="col-sm-8">R @Model.Lecturer?.HourlyRate.ToString("N2")</dd>
+
+            <dt class="col-sm-4">Total Amount</dt>
+            <dd class="col-sm-8 fw-bold text-success">R @Model.TotalAmount.ToString("N2")</dd>
+
+            <dt class="col-sm-4">Status</dt>
+            <dd class="col-sm-8"><span class="badge bg-warning text-dark">@Model.Status</span></dd>
+
+            <dt class="col-sm-4">Submission Date</dt>
+            <dd class="col-sm-8">@Model.SubmissionDate.ToString("yyyy-MM-dd")</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <strong>Supporting Documents</strong>
+    </div>
+    <div class="card-body">
+        @if (Model.SupportingDocuments != null && Model.SupportingDocuments.Any())
+        {
+            <ul class="list-group">
+                @foreach (var doc in Model.SupportingDocuments)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>@doc.FileName</span>
+                        <a href="@Url.Content("~/uploads/" + doc.FilePath)" target="_blank" class="btn btn-sm btn-outline-info">
+                            <i class="fas fa-download"></i> View
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-muted mb-0">No supporting documents uploaded.</p>
+        }
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <strong>Verification Decision</strong>
+    </div>
+    <div class="card-body">
+        <form asp-action="VerifyClaim" method="post" class="mb-2">
+            <input type="hidden" name="claimId" value="@Model.ClaimId" />
+            <div class="mb-3">
+                <label for="comments" class="form-label">Comments (optional)</label>
+                <textarea name="comments" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-check"></i> Verify and Send for Approval
+            </button>
+        </form>
+
+        <form asp-action="DeclineClaim" method="post">
+            <input type="hidden" name="claimId" value="@Model.ClaimId" />
+            <div class="mb-3">
+                <textarea name="comments" class="form-control" placeholder="Reason for declining (optional)" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-times"></i> Decline Claim
+            </button>
+        </form>
+    </div>
+</div>

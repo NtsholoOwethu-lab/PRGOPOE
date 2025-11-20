@@ -77,6 +77,8 @@
 
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+
                     <li class="nav-item">
                         <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
                            href="@Url.Action("Index", "Home")">Home</a>
@@ -93,7 +95,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="@Url.Action("Index", "Automation")">Automation / HR Reports</a>
                     </li>
-                    
+
                 </ul>
 
                 <div class="d-flex align-items-center">

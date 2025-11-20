@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PROGCMC")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+39949b5118f68852c6e4c61654b6a09cd3529d2f")]
 [assembly: System.Reflection.AssemblyProductAttribute("PROGCMC")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PROGCMC")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

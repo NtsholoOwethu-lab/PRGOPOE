@@ -1,0 +1,81 @@
+﻿@model List<PROGCMCS.Models.MonthlyClaim>
+@{
+    ViewData["Title"] = "Approver Dashboard";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-tasks me-2"></i>Approver Dashboard</h2>
+        <p class="lead">Review and approve pending claims from lecturers.</p>
+    </div>
+</div>
+<div class="card mb-3">
+    <div class="card-header"><strong>Approval Guidelines</strong></div>
+    <div class="card-body">
+        <ul class="mb-0">
+            <li>Hourly rate must be between <strong>R 50</strong> and <strong>R 500</strong>.</li>
+            <li>Total hours per claim must be between <strong>2</strong> and <strong>18</strong> hours.</li>
+            <li>Claim period must not be in the future and must be within the last <strong>12 months</strong>.</li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="fas fa-clock me-2"></i>Pending Claims for Review</h5>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Claim ID</th>
+                            <th>Lecturer</th>
+                            <th>Department</th>
+                            <th>Period</th>
+                            <th>Hours</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Submission Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var claim in Model)
+                        {
+                            <tr>
+                                <td>@claim.ClaimId</td>
+                                <td>@claim.Lecturer?.FirstName @claim.Lecturer?.LastName</td>
+                                <td>@claim.Lecturer?.Department</td>
+                                <td>@claim.Month/@claim.Year</td>
+                                <td>@claim.TotalHours</td>
+                                <td>R @claim.TotalAmount.ToString("N2")</td>
+                                <td>
+                                    <span class="claim-status status-@claim.Status.ToString().ToLower()">
+                                        @claim.Status
+                                    </span>
+                                </td>
+                                <td>@claim.SubmissionDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <a href="@Url.Action("ReviewClaim", new { id = claim.ClaimId })" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-search"></i> Review
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <h5>No pending claims</h5>
+                <p class="text-muted">All claims have been processed. Well done!</p>
+            </div>
+        }
+ 
