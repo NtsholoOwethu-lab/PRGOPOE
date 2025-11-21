@@ -76,33 +76,125 @@
             </button>
 
             <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                
 
 
                     <li class="nav-item">
                         <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
                            href="@Url.Action("Index", "Home")">Home</a>
                     </li>
-                    @* 
-<li class="nav-item">
-    <a class="nav-link" href="@Url.Action("Dashboard", "Lecturer")">Lecturer Portal</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="@Url.Action("Dashboard", "Verify")">Verify Portal</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="@Url.Action("Dashboard", "Approver")">Approver Portal</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="@Url.Action("Index", "Automation")">Automation / HR Reports</a>
-</li>
-*@
+                
                     
 
-                </ul>
+                
+
 
                 <div class="d-flex align-items-center">
-                    @{
+                    
+                    @* Worker menu *@
+                    @if (User.IsInRole("Manager"))
+                    {
+                        <ul class="navbar-nav  mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
+                                   href="@Url.Action("Index", "Home")">
+                                    Home
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Verifier" ? "active" : "")"
+                                   href="@Url.Action("Dashboard", "Verify")">
+                                    Pending Claims
+                                </a>
+                            </li>
+                        </ul>
+
+                    }
+                    @* HR *@
+                    @if (User.IsInRole("HR"))
+                    {
+                        <ul class="navbar-nav  mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
+                                   href="@Url.Action("Index", "Home")">
+                                    Home
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Lecturer" ? "active" : "")"
+                                   href="@Url.Action("Dashboard", "Lecturer")">
+                                    Summary
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AddLecturer" ? "active" : "")"
+                                   href="@Url.Action("AddLecturer", "Lecturer")">
+                                    Add Worker
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "EditClaims" ? "active" : "")"
+                                   href="@Url.Action("EditClaims", "Lecturer")">
+                                    Edit Claims
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Automation" ? "active" : "")"
+                                   href="@Url.Action("Index", "Automation")">
+                                    Report
+                                </a>
+                            </li>
+                        </ul>
+
+                        
+                    }
+@* coordinator *@
+                    @if (User.IsInRole("Coordinator"))
+                    {
+                        <ul class="navbar-nav  mb-2 mb-lg-0">
+    <li class="nav-item">
+        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
+           href="@Url.Action("Index", "Home")">
+            Home
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Automation" ? "active" : "")"
+           href="@Url.Action("Index", "Automation")">
+            Automation 
+        </a>
+    </li>
+</ul>
+
+                       
+                    }
+                    @* Lecturer-specific tabs *@
+                    <!--Worker where the role can be lecturer-->
+                    @if (User.IsInRole("Lecturer"))
+                    {
+                        <ul class="navbar-nav mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "CreateClaim" ? "active" : "")"
+                                   href="@Url.Action("CreateClaim", "Lecturer")">
+                                    Submit New Claim
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")"
+                                   href="@Url.Action("Dashboard", "Lecturer")">
+                                    Claim Details
+                                </a>
+                            </li>
+                        </ul>
+                    }
+ @{
                         var user = HttpContextAccessor.HttpContext?.User;
                         var isAuth = user?.Identity?.IsAuthenticated ?? false;
                         var name = user?.FindFirst(ClaimTypes.Name)?.Value ?? "";
@@ -116,78 +208,6 @@
                             @Html.AntiForgeryToken()
                             <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
                         </form>
-                    }
-                    @* Worker menu *@
-                    @if (User.IsInRole("Manager"))
-                    {
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
-                                   href="@Url.Action("Index", "Home")">Home</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("VerifierDashboard", "Verifier")">Pending Claims</a>
-                            </li>
-                        </ul>
-
-                    }
-                    @* HR *@
-                    @if (User.IsInRole("HR"))
-                    {
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
-                                   href="@Url.Action("Index", "Home")">Home</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Dashboard", "Lecturer")">Summary</a><!--Summary Lecturer Dashboard-->
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("AddWorker", "Lecturer")">Add Worder</a><!--Add lecturer-->
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("EditClaims", "Lecturer")">Edit Claims</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Index", "Automation")">Automation / Export</a> ><!--one export -->
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Index", "Automation")">Automation / Export</a>><!--Automation button-->
-                            </li>
-                        </ul>
-
-                        
-                    }
-@* coordinator *@
-                    @if (User.IsInRole("Coordinator"))
-                    {
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
-                                   href="@Url.Action("Index", "Home")">Home</a>
-                            </li>
-
-                           
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Index", "Automation")">Automation / Export</a>><!--Automation button-->
-                            </li>
-                        </ul>
-
-                       
-                    }
-                    @* Lecturer-specific tabs *@
-                    @if (User.IsInRole("Lecturer"))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("CreateClaim", "Lecturer")">Submit New Claim</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Dashboard", "Lecturer")">Claim Details</a><!--DO they view they own claim-->
-                        </li>
                     }
                     else
                     {
