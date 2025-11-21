@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using PROGCMCS.Data;
+using PROGCMCS.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PROGCMCS.Models;
 
 namespace PROGCMCS.Data
 {
@@ -12,101 +13,160 @@ namespace PROGCMCS.Data
     {
         public static async Task InitializeAsync(IServiceProvider serviceProvider)
         {
+            // Get required services
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
-            // Apply pending migrations
-            await context.Database.MigrateAsync();
+            logger.LogInformation("Starting seed data...");
 
-            // Define roles
+            // Define all roles
             string[] roles = { "Lecturer", "Coordinator", "Manager", "HR" };
+
+            // Create roles if they don't exist
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
+                {
                     await roleManager.CreateAsync(new IdentityRole(role));
+                    logger.LogInformation($"Created role: {role}");
+                }
             }
 
-            // Helper method: create user and add to role
-            async Task CreateUser(string email, string role, string? first = null, string? last = null,
-                string? dept = null, decimal hourlyRate = 0)
+            // ===============================
+            // Helper to create users with better error handling
+            // ===============================
+            async Task<(bool success, IdentityUser user)> CreateUserAsync(string email, string role)
             {
-                var user = await userManager.FindByEmailAsync(email);
-                if (user == null)
+                try
                 {
-                    user = new IdentityUser
+                    var user = await userManager.FindByEmailAsync(email);
+                    if (user == null)
                     {
-                        UserName = email,
-                        Email = email,
-                        EmailConfirmed = true
-                    };
-
-                    // Use valid passwords with at least one lowercase, uppercase, digit, and special character
-                    string password = role switch
-                    {
-                        "HR" => "Hr@123!",
-                        _ => $"{role}@123!"
-                    };
-
-                    var result = await userManager.CreateAsync(user, password);
-                    if (!result.Succeeded)
-                    {
-                        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                        throw new Exception($"Failed to create user {email}: {errors}");
-                    }
-
-                    await userManager.AddToRoleAsync(user, role);
-
-                    // If Lecturer, create lecturer profile
-                    if (role == "Lecturer" && first != null && last != null && dept != null)
-                    {
-                        if (!context.Lecturers.Any(l => l.Email == email))
+                        user = new IdentityUser
                         {
-                            context.Lecturers.Add(new Lecturer
-                            {
-                                FirstName = first,
-                                LastName = last,
-                                Email = email,
-                                Department = dept,
-                                HourlyRate = hourlyRate
-                            });
-                            await context.SaveChangesAsync();
+                            UserName = email,
+                            Email = email,
+                            EmailConfirmed = true
+                        };
+
+                        // Use consistent password pattern that meets requirements
+                        var password = $"{role}Password123!";
+                        
+                        var result = await userManager.CreateAsync(user, password);
+                        if (result.Succeeded)
+                        {
+                            await userManager.AddToRoleAsync(user, role);
+                            logger.LogInformation($"Created user: {email} with role: {role}");
+                            return (true, user);
+                        }
+                        else
+                        {
+                            logger.LogError($"Failed to create user {email}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                            return (false, null);
                         }
                     }
-                }
-            }
-
-            // Seed users
-            await CreateUser("lecturer@university.com", "Lecturer", "John", "Smith", "Computer Science", 85m);
-            await CreateUser("lecturer2@university.com", "Lecturer", "Emma", "Davis", "Information Technology", 80m);
-            await CreateUser("coordinator@university.com", "Coordinator");
-            await CreateUser("manager@university.com", "Manager");
-            await CreateUser("hr@university.com", "HR");
-
-            // Seed sample monthly claims for lecturers
-            var lecturers = await context.Lecturers.ToListAsync();
-            foreach (var lecturer in lecturers)
-            {
-                int month = DateTime.Now.Month - 1;
-                int year = DateTime.Now.Year;
-
-                if (!context.MonthlyClaims.Any(c => c.LecturerId == lecturer.LecturerId && c.Month == month && c.Year == year))
-                {
-                    context.MonthlyClaims.Add(new MonthlyClaim
+                    else
                     {
-                        LecturerId = lecturer.LecturerId,
-                        Month = month,
-                        Year = year,
-                        TotalHours = lecturer.Email == "lecturer@university.com" ? 10 : 8,
-                        HourlyRate = lecturer.HourlyRate,
-                        TotalAmount = lecturer.HourlyRate * (lecturer.Email == "lecturer@university.com" ? 10 : 8),
-                        Status = ClaimStatus.Submitted,
-                        SubmissionDate = DateTime.Now.AddDays(-3)
-                    });
+                        logger.LogInformation($"User {email} already exists");
+                        return (true, user);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, $"Error creating user {email}");
+                    return (false, null);
                 }
             }
 
-            await context.SaveChangesAsync();
+            // ===============================
+            // Helper to create lecturer with profile
+            // ===============================
+            async Task<Lecturer?> CreateLecturerUser(string email, string role, string first, string last, string dept, decimal rate)
+            {
+                var (success, user) = await CreateUserAsync(email, role);
+                if (!success || user == null) return null;
+
+                // Create lecturer profile if role is Lecturer
+                if (role == "Lecturer")
+                {
+                    var existingLecturer = await context.Lecturers.FirstOrDefaultAsync(l => l.Email == email);
+                    if (existingLecturer == null)
+                    {
+                        var lecturer = new Lecturer
+                        {
+                            FirstName = first,
+                            LastName = last,
+                            Email = email,
+                            Department = dept,
+                            HourlyRate = rate
+                        };
+
+                        context.Lecturers.Add(lecturer);
+                        await context.SaveChangesAsync();
+                        logger.LogInformation($"Created lecturer profile for: {email}");
+                        return lecturer;
+                    }
+                    return existingLecturer;
+                }
+
+                return null;
+            }
+
+            // ===============================
+            // Seed all users
+            // ===============================
+            logger.LogInformation("Creating users...");
+
+            // Create lecturers
+            var lecturer1 = await CreateLecturerUser("lecturer@university.com", "Lecturer", "John", "Smith", "Computer Science", 85m);
+            var lecturer2 = await CreateLecturerUser("lecturer2@university.com", "Lecturer", "Emma", "Davis", "Information Technology", 80m);
+
+            // Create other users - FIXED: Using the same helper for all users
+            await CreateUserAsync("coordinator@university.com", "Coordinator");
+            await CreateUserAsync("manager@university.com", "Manager");
+            
+            // FIXED: HR user creation with proper error handling
+            var hrResult = await CreateUserAsync("hr@university.com", "HR");
+            if (!hrResult.success)
+            {
+                logger.LogError("FAILED to create HR user!");
+            }
+
+            // ===============================
+            // Seed sample monthly claims
+            // ===============================
+            if (lecturer1 != null || lecturer2 != null)
+            {
+                void AddClaim(Lecturer? lecturer, int month, int year, decimal hours)
+                {
+                    if (lecturer == null) return;
+
+                    if (!context.MonthlyClaims.Any(c => c.LecturerId == lecturer.LecturerId && c.Month == month && c.Year == year))
+                    {
+                        context.MonthlyClaims.Add(new MonthlyClaim
+                        {
+                            LecturerId = lecturer.LecturerId,
+                            Month = month,
+                            Year = year,
+                            TotalHours = hours,
+                            HourlyRate = lecturer.HourlyRate,
+                            TotalAmount = lecturer.HourlyRate * hours,
+                            Status = ClaimStatus.Submitted,
+                            SubmissionDate = DateTime.Now.AddDays(-3)
+                        });
+                    }
+                }
+
+                AddClaim(lecturer1, DateTime.Now.Month - 1, DateTime.Now.Year, 10);
+                AddClaim(lecturer2, DateTime.Now.Month - 1, DateTime.Now.Year, 8);
+
+                await context.SaveChangesAsync();
+                logger.LogInformation("Sample claims created");
+            }
+
+            logger.LogInformation("Seed data completed");
         }
     }
 }

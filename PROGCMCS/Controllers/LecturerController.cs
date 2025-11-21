@@ -3,7 +3,6 @@ using PROGCMCS.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using PROGCMCS.Data;
 
 namespace PROGCMCS.Controllers
 {
@@ -25,7 +24,6 @@ namespace PROGCMCS.Controllers
             _context = context;
             _environment = environment;
             _logger = logger;
-           
         }
 
         // === LECTURER DASHBOARD ===
@@ -73,48 +71,77 @@ namespace PROGCMCS.Controllers
         [HttpGet]
         public IActionResult CreateClaim()
         {
-            ViewBag.Lecturers = _context.Lecturers.ToList();
-            return View(new MonthlyClaim());
+            try
+            {
+                // TEMPORARY FIX: Remove IsActive filter until migration is run
+                ViewBag.Lecturers = _context.Lecturers
+                    .Select(l => new { l.LecturerId, FullName = l.FirstName + " " + l.LastName })
+                    .ToList();
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading lecturers for CreateClaim");
+                ViewBag.Lecturers = new List<object>();
+                return View();
+            }
         }
 
         // === POST: Create Claim ===
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateClaim(MonthlyClaim claim)
+        public async Task<IActionResult> CreateClaim(MonthlyClaim claim)
         {
-            ViewBag.Lecturers = _context.Lecturers.ToList();
-
-            // Basic model validation first
             if (!ModelState.IsValid)
             {
+                // TEMPORARY FIX: Remove IsActive filter
+                ViewBag.Lecturers = _context.Lecturers
+                    .Select(l => new { l.LecturerId, FullName = l.FirstName + " " + l.LastName })
+                    .ToList();
                 return View(claim);
             }
 
-            var lecturer = _context.Lecturers.FirstOrDefault(l => l.LecturerId == claim.LecturerId);
-            if (lecturer == null)
+            try
             {
-                ModelState.AddModelError("LecturerId", "Selected lecturer was not found.");
-                return View(claim);
-            }
+                // Find lecturer by the selected LecturerId from the form
+                var lecturer = await _context.Lecturers
+                    .FirstOrDefaultAsync(l => l.LecturerId == claim.LecturerId);
 
-            // Validate lecturer hourly rate bounds before creating claim
-            if (lecturer.HourlyRate < HourlyRateMin || lecturer.HourlyRate > HourlyRateMax)
+                if (lecturer == null)
+                {
+                    TempData["ErrorMessage"] = "Selected lecturer not found.";
+
+                    // TEMPORARY FIX: Remove IsActive filter
+                    ViewBag.Lecturers = _context.Lecturers
+                        .Select(l => new { l.LecturerId, FullName = l.FirstName + " " + l.LastName })
+                        .ToList();
+                    return View(claim);
+                }
+
+                // Set claim properties
+                claim.HourlyRate = lecturer.HourlyRate;
+                claim.TotalAmount = lecturer.HourlyRate * claim.TotalHours;
+                claim.SubmissionDate = DateTime.Now;
+                claim.Status = ClaimStatus.Submitted;
+
+                _context.MonthlyClaims.Add(claim);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Claim submitted successfully!";
+                return RedirectToAction(nameof(Dashboard));
+            }
+            catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, $"The selected lecturer has an hourly rate outside the allowed range ({HourlyRateMin} - {HourlyRateMax}). Please correct the lecturer's rate before submitting a claim.");
+                _logger.LogError(ex, "Error creating claim");
+                TempData["ErrorMessage"] = "An error occurred while submitting the claim.";
+
+                // TEMPORARY FIX: Remove IsActive filter
+                ViewBag.Lecturers = _context.Lecturers
+                    .Select(l => new { l.LecturerId, FullName = l.FirstName + " " + l.LastName })
+                    .ToList();
                 return View(claim);
             }
-
-            // Set the claim's hourly rate from lecturer and calculate total
-            claim.HourlyRate = lecturer.HourlyRate;
-            claim.TotalAmount = claim.TotalHours * claim.HourlyRate;
-            claim.Status = ClaimStatus.Submitted; // mark as Submitted
-            claim.SubmissionDate = DateTime.Now;
-
-            _context.MonthlyClaims.Add(claim);
-            _context.SaveChanges();
-
-            TempData["SuccessMessage"] = "Claim submitted for verification!";
-            return RedirectToAction("Dashboard", "Verify");
         }
 
         // === POST: Delete Document (AJAX) ===
@@ -143,6 +170,7 @@ namespace PROGCMCS.Controllers
                 return Json(new { success = false, message = "Error deleting document." });
             }
         }
+
         // GET: Lecturer/Edit/5
         [HttpGet]
         public async Task<IActionResult> EditLecturer(int id)
@@ -158,29 +186,19 @@ namespace PROGCMCS.Controllers
         public async Task<IActionResult> EditLecturer(int id, Lecturer lecturer)
         {
             if (id != lecturer.LecturerId) return BadRequest();
+
+            // Server-side validation for hourly rate bounds
+            if (lecturer.HourlyRate < HourlyRateMin || lecturer.HourlyRate > HourlyRateMax)
+            {
+                ModelState.AddModelError(nameof(lecturer.HourlyRate), $"Hourly rate must be between {HourlyRateMin} and {HourlyRateMax}.");
+            }
+
             if (!ModelState.IsValid) return View(lecturer);
 
             _context.Update(lecturer);
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "Lecturer updated.";
             return RedirectToAction(nameof(Dashboard));
-        }
-
-        //Claim details
-        // Claim Details
-        [HttpGet]
-        public async Task<IActionResult> ClaimDetails(int id)
-        {
-            var claim = await _context.MonthlyClaims
-                .Include(c => c.Lecturer)
-                .Include(c => c.ClaimApprovals)
-                .Include(c => c.SupportingDocuments)
-                .FirstOrDefaultAsync(c => c.ClaimId == id);
-
-            if (claim == null)
-                return NotFound();
-
-            return View(claim);
         }
     }
 }

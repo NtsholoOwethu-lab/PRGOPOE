@@ -1,4 +1,5 @@
-﻿@model PROGCMCS.Models.MonthlyClaim
+﻿@using PROGCMCS.Models
+@model PROGCMCS.Models.MonthlyClaim
 @{
     ViewData["Title"] = "Claim Details";
 }
@@ -60,9 +61,9 @@
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
                                     <i class="fas fa-file @(doc.FileType.Contains("pdf") ? "text-danger" :
-                                                                                                                                        doc.FileType.Contains("word") ? "text-primary" :
-                                                                                                                                        doc.FileType.Contains("excel") ? "text-success" :
-                                                                                                                                        doc.FileType.Contains("image") ? "text-warning" : "text-secondary") me-2"></i>
+                                                                                                        doc.FileType.Contains("word") ? "text-primary" :
+                                                                                                        doc.FileType.Contains("excel") ? "text-success" :
+                                                                                                        doc.FileType.Contains("image") ? "text-warning" : "text-secondary") me-2"></i>
                             @doc.FileName
                             <small class="text-muted d-block">
                                 Uploaded: @doc.UploadDate.ToString("yyyy-MM-dd") |

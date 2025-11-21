@@ -2,8 +2,6 @@
 using PROGCMCS.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PROGCMCS.Data;
-using PROGCMCS.Models;
 
 namespace PROGCMCS.Controllers
 {

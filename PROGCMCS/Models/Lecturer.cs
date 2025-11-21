@@ -29,5 +29,8 @@ namespace PROGCMCS.Models
 
         // Navigation properties
         public virtual ICollection<MonthlyClaim> MonthlyClaims { get; set; } = new List<MonthlyClaim>();
+
+        // Add default value to handle existing records
+        public bool IsActive { get; set; } = true;
     }
 }

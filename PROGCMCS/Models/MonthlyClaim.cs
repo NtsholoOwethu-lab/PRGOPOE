@@ -21,10 +21,8 @@ namespace PROGCMCS.Models
         [Required]
         public int LecturerId { get; set; }
 
-
         [Range(1, 12)]
         public int Month { get; set; }
-
 
         [Range(2020, 2030)]
         public int Year { get; set; }
@@ -32,8 +30,6 @@ namespace PROGCMCS.Models
         [Required]
         [Range(2.00, 18.00)]
         public decimal TotalHours { get; set; }
-
-
 
         public decimal HourlyRate { get; set; }
 
@@ -51,7 +47,7 @@ namespace PROGCMCS.Models
 
         // Navigation properties
         [ForeignKey("LecturerId")]
-        public Lecturer? Lecturer { get; set; }
+        public virtual Lecturer? Lecturer { get; set; }
         public virtual ICollection<SupportingDocument> SupportingDocuments { get; set; } = new List<SupportingDocument>();
         public virtual ICollection<ClaimApproval> ClaimApprovals { get; set; } = new List<ClaimApproval>();
 

@@ -60,6 +60,12 @@
             background: #f8f9fa;
             margin-top: 3rem;
         }
+
+        .navbar-nav .nav-link.active {
+            font-weight: bold;
+            background: rgba(255,255,255,0.1);
+            border-radius: 0.25rem;
+        }
     </style>
 </head>
 <body>
@@ -76,152 +82,140 @@
             </button>
 
             <div class="collapse navbar-collapse" id="mainNav">
-                
+                <!-- Navigation Menu -->
+                <ul class="navbar-nav me-auto">
+                    <!-- Common Home link for all authenticated users -->
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                               href="@Url.Action("Index", "Home")">
+                                <i class="fas fa-home me-1"></i>Home
+                            </a>
+                        </li>
+                    }
 
-
-                    <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
-                           href="@Url.Action("Index", "Home")">Home</a>
-                    </li>
-                
-                    
-
-                
-
-
-                <div class="d-flex align-items-center">
-                    
-                    @* Worker menu *@
+                    <!-- Manager Navigation -->
                     @if (User.IsInRole("Manager"))
                     {
-                        <ul class="navbar-nav  mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
-                                   href="@Url.Action("Index", "Home")">
-                                    Home
-                                </a>
-                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Verify" ? "active" : "")"
+                               href="@Url.Action("Dashboard", "Verify")">
+                                <i class="fas fa-tasks me-1"></i>Pending Claims
+                            </a>
+                        </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Verifier" ? "active" : "")"
-                                   href="@Url.Action("Dashboard", "Verify")">
-                                    Pending Claims
-                                </a>
-                            </li>
-                        </ul>
-
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" ? "active" : "")"
+                               href="@Url.Action("Index", "Report")">
+                                <i class="fas fa-chart-bar me-1"></i>Reports
+                            </a>
+                        </li>
                     }
-                    @* HR *@
+
+                    <!-- HR Navigation -->
                     @if (User.IsInRole("HR"))
                     {
-                        <ul class="navbar-nav  mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
-                                   href="@Url.Action("Index", "Home")">
-                                    Home
-                                </a>
-                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "HR" && ViewContext.RouteData.Values["action"]?.ToString() == "Workers" ? "active" : "")"
+                               href="@Url.Action("Workers", "HR")">
+                                <i class="fas fa-users me-1"></i>All Workers
+                            </a>
+                        </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Lecturer" ? "active" : "")"
-                                   href="@Url.Action("Dashboard", "Lecturer")">
-                                    Summary
-                                </a>
-                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "HR" && ViewContext.RouteData.Values["action"]?.ToString() == "AddWorker" ? "active" : "")"
+                               href="@Url.Action("AddWorker", "HR")">
+                                <i class="fas fa-user-plus me-1"></i>Add Worker
+                            </a>
+                        </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AddLecturer" ? "active" : "")"
-                                   href="@Url.Action("AddLecturer", "Lecturer")">
-                                    Add Worker
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "EditClaims" ? "active" : "")"
-                                   href="@Url.Action("EditClaims", "Lecturer")">
-                                    Edit Claims
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Automation" ? "active" : "")"
-                                   href="@Url.Action("Index", "Automation")">
-                                    Report
-                                </a>
-                            </li>
-                        </ul>
-
-                        
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Automation" ? "active" : "")"
+                               href="@Url.Action("Index", "Automation")">
+                                <i class="fas fa-file-alt me-1"></i>Reports
+                            </a>
+                        </li>
                     }
-@* coordinator *@
+
+                    <!-- Coordinator Navigation -->
                     @if (User.IsInRole("Coordinator"))
                     {
-                        <ul class="navbar-nav  mb-2 mb-lg-0">
-    <li class="nav-item">
-        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
-           href="@Url.Action("Index", "Home")">
-            Home
-        </a>
-    </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Automation" ? "active" : "")"
+                               href="@Url.Action("Index", "Automation")">
+                                <i class="fas fa-cogs me-1"></i>Automation
+                            </a>
+                        </li>
 
-    <li class="nav-item">
-        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Automation" ? "active" : "")"
-           href="@Url.Action("Index", "Automation")">
-            Automation 
-        </a>
-    </li>
-</ul>
-
-                       
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Coordinator" ? "active" : "")"
+                               href="@Url.Action("Dashboard", "Coordinator")">
+                                <i class="fas fa-eye me-1"></i>View Claims
+                            </a>
+                        </li>
                     }
-                    @* Lecturer-specific tabs *@
-                    <!--Worker where the role can be lecturer-->
+
+                    <!-- Lecturer Navigation -->
                     @if (User.IsInRole("Lecturer"))
                     {
-                        <ul class="navbar-nav mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "CreateClaim" ? "active" : "")"
-                                   href="@Url.Action("CreateClaim", "Lecturer")">
-                                    Submit New Claim
-                                </a>
-                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "CreateClaim" ? "active" : "")"
+                               href="@Url.Action("CreateClaim", "Lecturer")">
+                                <i class="fas fa-plus-circle me-1"></i>Submit New Claim
+                            </a>
+                        </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")"
-                                   href="@Url.Action("Dashboard", "Lecturer")">
-                                    Claim Details
-                                </a>
-                            </li>
-                        </ul>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")"
+                               href="@Url.Action("Dashboard", "Lecturer")">
+                                <i class="fas fa-list-alt me-1"></i>My Claims
+                            </a>
+                        </li>
                     }
- @{
+                </ul>
+
+                <!-- User Info and Logout -->
+                <div class="navbar-nav align-items-center">
+                    @{
                         var user = HttpContextAccessor.HttpContext?.User;
                         var isAuth = user?.Identity?.IsAuthenticated ?? false;
-                        var name = user?.FindFirst(ClaimTypes.Name)?.Value ?? "";
+                        var name = user?.FindFirst(ClaimTypes.Name)?.Value ?? user?.Identity?.Name ?? "";
                         var role = user?.FindFirst(ClaimTypes.Role)?.Value ?? "";
+                        var email = user?.FindFirst(ClaimTypes.Email)?.Value ?? "";
                     }
 
                     @if (isAuth)
                     {
-                        <span class="text-white me-2">Signed in as <strong>@(string.IsNullOrEmpty(name) ? "User" : name)</strong> <small class="text-light">(@role)</small></span>
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-                        </form>
+                        <div class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i>
+                                @(string.IsNullOrEmpty(name) ? email.Split('@')[0] : name)
+                                <small class="text-light">(@role)</small>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><span class="dropdown-item-text">@email</span></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <!-- FIXED: Use Identity's logout instead of custom Account controller -->
+                                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     }
                     else
                     {
-                        <ul>
-                            <partial name="_LoginPartial" />
-                        </ul>
-                        /*
-                        <a class="btn btn-light btn-sm" href="@Url.Action("Login", "Account")">Login</a>
-                        */
+                        <a class="nav-link text-white" href="@Url.Page("/Account/Login", new { area = "Identity" })">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
                     }
                 </div>
             </div>
         </div>
-
     </nav>
 
     <main class="container my-4">
@@ -229,6 +223,7 @@
         @if (TempData["SuccessMessage"] != null)
         {
             <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
                 @TempData["SuccessMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -236,15 +231,18 @@
         @if (TempData["ErrorMessage"] != null)
         {
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
                 @TempData["ErrorMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
         @if (TempData["ModelErrors"] != null)
         {
-            <div class="alert alert-warning">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
                 <strong>Validation errors:</strong>
                 <div>@TempData["ModelErrors"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
 

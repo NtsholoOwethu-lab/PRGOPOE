@@ -1,18 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using PROGCMCS.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PROGCMCS.Models;
 
 namespace PROGCMCS.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
 
-        // Custom DbSets
         public DbSet<Lecturer> Lecturers { get; set; }
         public DbSet<MonthlyClaim> MonthlyClaims { get; set; }
         public DbSet<SupportingDocument> SupportingDocuments { get; set; }
@@ -20,20 +20,24 @@ namespace PROGCMCS.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); // Important for Identity
+            // REQUIRED for Identity tables to be created properly
+            base.OnModelCreating(modelBuilder);
 
+            // Lecturer → MonthlyClaims
             modelBuilder.Entity<MonthlyClaim>()
                 .HasOne(m => m.Lecturer)
                 .WithMany(l => l.MonthlyClaims)
                 .HasForeignKey(m => m.LecturerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // MonthlyClaim → SupportingDocuments
             modelBuilder.Entity<SupportingDocument>()
                 .HasOne(s => s.MonthlyClaim)
                 .WithMany(m => m.SupportingDocuments)
                 .HasForeignKey(s => s.ClaimId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // MonthlyClaim → ClaimApprovals
             modelBuilder.Entity<ClaimApproval>()
                 .HasOne(c => c.MonthlyClaim)
                 .WithMany(m => m.ClaimApprovals)

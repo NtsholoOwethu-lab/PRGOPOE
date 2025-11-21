@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata;
-using System.Text;
+﻿using System.Text;
 using PROGCMCS.Data;
 using PROGCMCS.Models;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using PROGCMCS.Data;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
-using Document = QuestPDF.Fluent.Document;
 
 namespace PROGCMCS.Services
 {

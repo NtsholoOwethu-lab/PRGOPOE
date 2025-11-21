@@ -1,74 +1,123 @@
-﻿using System.Text;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PROGCMCS.Data;
 using PROGCMCS.Models;
+using PROGCMCS.Services;
 
-[Authorize(Roles = "HR")]
-public class HrController : Controller
+namespace PROGCMCS.Controllers
 {
-    private readonly ApplicationDbContext _db;
-
-    public HrController(ApplicationDbContext db) => _db = db;
-
-    public IActionResult Index() => RedirectToAction("Summary");
-
-    public async Task<IActionResult> Summary()
+    [Authorize(Roles = "HR")]
+    public class HRController : Controller
     {
-        var model = new HrDashboardViewModel
+        private readonly HRService _hrService;
+
+        public HRController(HRService hrService)
         {
-            TotalClaims = await _db.MonthlyClaims.CountAsync(),
-            TotalApprovedAmount = await _db.MonthlyClaims.Where(c => c.Status == ClaimStatus.Approved).SumAsync(c => c.TotalAmount),
-            SubmittedClaims = await _db.MonthlyClaims.CountAsync(c => c.Status == ClaimStatus.Submitted),
-            RejectedClaims = await _db.MonthlyClaims.CountAsync(c => c.Status == ClaimStatus.Rejected),
-            PaidClaims = await _db.MonthlyClaims.CountAsync(c => c.Status == ClaimStatus.Paid)
-        };
-        return View(model);
-    }
-
-    public async Task<IActionResult> AllClaims() =>
-        View(await _db.MonthlyClaims.Include(c => c.Lecturer).OrderByDescending(c => c.SubmissionDate).ToListAsync());
-
-    public async Task<IActionResult> Employees() =>
-        View(await _db.Lecturers.ToListAsync());
-
-    public IActionResult AddEmployee() => View();
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddEmployee(Lecturer lecturer)
-    {
-        if (ModelState.IsValid)
-        {
-            _db.Lecturers.Add(lecturer);
-            await _db.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Employee added successfully.";
-            return RedirectToAction("Employees");
+            _hrService = hrService;
         }
-        return View(lecturer);
-    }
 
-    public async Task<IActionResult> RemoveEmployee(int id)
-    {
-        var employee = await _db.Lecturers.FindAsync(id);
-        if (employee != null)
+        public async Task<IActionResult> Workers()
         {
-            _db.Lecturers.Remove(employee);
-            await _db.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Employee removed successfully.";
+            var users = await _hrService.GetAllUsersAsync();
+            return View(users);
         }
-        return RedirectToAction("Employees");
-    }
 
-    public async Task<IActionResult> ExportReports()
-    {
-        var csv = new StringBuilder();
-        csv.AppendLine("Lecturer,Email,Month,Year,TotalHours,HourlyRate,TotalAmount,Status");
-        var claims = await _db.MonthlyClaims.Include(c => c.Lecturer).ToListAsync();
-        foreach (var c in claims)
-            csv.AppendLine($"{c.Lecturer.FirstName} {c.Lecturer.LastName},{c.Lecturer.Email},{c.Month},{c.Year},{c.TotalHours},{c.HourlyRate},{c.TotalAmount},{c.Status}");
+        [HttpGet]
+        public IActionResult AddWorker()
+        {
+            var model = new CreateUserViewModel();
+            return View(model);
+        }
 
-        return File(Encoding.UTF8.GetBytes(csv.ToString()), "text/csv", $"Claims_{DateTime.Now:yyyyMMdd}.csv");
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddWorker(CreateUserViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var (success, message, generatedPassword) = await _hrService.CreateUserAsync(model);
+
+            if (success)
+            {
+                TempData["SuccessMessage"] = $"{message} Generated password: {generatedPassword}";
+                return RedirectToAction(nameof(Workers));
+            }
+            else
+            {
+                TempData["ErrorMessage"] = message;
+                return View(model);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditWorker(string userId)
+        {
+            var users = await _hrService.GetAllUsersAsync();
+            var user = users.FirstOrDefault(u => u.UserId == userId);
+
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "User not found.";
+                return RedirectToAction(nameof(Workers));
+            }
+
+            var model = new EditUserViewModel
+            {
+                UserId = user.UserId,
+                LecturerId = user.LecturerId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Department = user.Department,
+                HourlyRate = user.HourlyRate,
+                Role = user.Role,
+                IsActive = user.IsActive
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditWorker(EditUserViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var (success, message) = await _hrService.UpdateUserAsync(model);
+
+            if (success)
+            {
+                TempData["SuccessMessage"] = message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = message;
+            }
+
+            return RedirectToAction(nameof(Workers));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string userId)
+        {
+            var (success, message) = await _hrService.ResetPasswordAsync(userId);
+
+            if (success)
+            {
+                TempData["SuccessMessage"] = message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = message;
+            }
+
+            return RedirectToAction(nameof(Workers));
+        }
     }
 }

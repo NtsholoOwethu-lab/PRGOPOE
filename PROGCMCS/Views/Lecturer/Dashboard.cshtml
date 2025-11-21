@@ -26,14 +26,14 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var lecturer in Model)
+            @foreach (var user in Model)
             {
-                var latestClaim = lecturer.MonthlyClaims?.OrderByDescending(c => c.SubmissionDate).FirstOrDefault();
+                var latestClaim = user.MonthlyClaims?.OrderByDescending(c => c.SubmissionDate).FirstOrDefault();
 
                 <tr>
-                    <td>@lecturer.FirstName @lecturer.LastName</td>
-                    <td>@lecturer.Email</td>
-                    <td>R @lecturer.HourlyRate.ToString("N2")</td>
+                    <td>@user.FirstName @user.LastName</td>
+                    <td>@user.Email</td>
+                    <td>R @user.HourlyRate.ToString("N2")</td>
 
                     @if (latestClaim != null)
                     {
@@ -44,7 +44,6 @@
                                 string badgeClass = latestClaim.Status switch
                                 {
                                     PROGCMCS.Models.ClaimStatus.Submitted => "bg-primary",
-
                                     PROGCMCS.Models.ClaimStatus.Approved => "bg-success",
                                     PROGCMCS.Models.ClaimStatus.Rejected => "bg-danger",
                                     _ => "bg-secondary"
@@ -60,7 +59,7 @@
                     }
 
                     <td>
-                        <a asp-controller="Lecturer" asp-action="ClaimDetails" asp-route-id="@lecturer.LecturerId" class="btn btn-outline-primary btn-sm">View</a>
+                        <a asp-controller="Lecturer" asp-action="ClaimDetails" asp-route-id="@user.LecturerId" class="btn btn-outline-primary btn-sm">View</a>
                     </td>
                 </tr>
             }
