@@ -158,3 +158,8 @@ JavaScript/jQuery for real-time features
 xUnit for testing
 
 LINQ for data operations
+
+
+Links:
+
+YouTube link: https://youtu.be/aRsrfBRNSF8
