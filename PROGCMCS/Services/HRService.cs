@@ -41,7 +41,7 @@ namespace PROGCMCS.Services
                     HourlyRate = lecturer?.HourlyRate ?? 0,
                     Role = role,
                     IsActive = lecturer?.IsActive ?? true,
-                    LastLogin = null // You can track this if you add login tracking
+                    LastLogin = null // login tracking
                 });
             }
 

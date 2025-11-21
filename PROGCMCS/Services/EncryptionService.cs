@@ -47,7 +47,7 @@ namespace CMCS.Services
 
             var hmacBytes = hmac.ComputeHash(contentBytes);
 
-            // ✅ FIXED: no await here
+            
             outFs.Seek(0, SeekOrigin.End);
             await outFs.WriteAsync(hmacBytes, 0, hmacBytes.Length, cancellationToken);
             await outFs.FlushAsync(cancellationToken);

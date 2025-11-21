@@ -18,7 +18,7 @@ namespace PROGCMCS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // Use SignInManager to sign out properly
+            // Use to sign out properly
             await _signInManager.SignOutAsync();
 
             // Clear any existing external cookie to ensure a clean logout

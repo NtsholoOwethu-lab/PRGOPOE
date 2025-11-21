@@ -50,7 +50,7 @@ namespace PROGCMCS.Models
         public DateTime SubmissionDate { get; set; }
         public string? Notes { get; set; }
 
-        // Formatted properties for display
+        
         public string Period => $"{Month}/{Year}";
         public string DisplayAmount => TotalAmount.ToString("C");
         public string DisplaySubmissionDate => SubmissionDate.ToString("yyyy-MM-dd");
