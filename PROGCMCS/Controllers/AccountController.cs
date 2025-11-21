@@ -1,48 +1,64 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PROGCMCS.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+
+        public AccountController(
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+        }
+
         [HttpGet]
         public IActionResult Login()
         {
-            // Simple role picker view
             return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string role)
+        public async Task<IActionResult> Login(string email, string password, bool rememberMe)
         {
-            // role can be "Lecturer", "ProgrammeCoordinator", "AcademicManager"
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, role),
-                new Claim(ClaimTypes.Role, role)
-            };
+            var user = await _userManager.FindByEmailAsync(email);
 
-            // Map lecturer id for demo when role is Lecturer
-            if (role == "Lecturer")
+            if (user == null)
             {
-                claims.Add(new Claim(ClaimTypes.NameIdentifier, "1")); // demo lecturer id 1
-            }
-            else if (role == "ProgrammeCoordinator")
-            {
-                claims.Add(new Claim(ClaimTypes.NameIdentifier, "2")); // demo approver id
-            }
-            else if (role == "AcademicManager")
-            {
-                claims.Add(new Claim(ClaimTypes.NameIdentifier, "3")); // demo manager id
+                ModelState.AddModelError("", "Invalid login attempt");
+                return View();
             }
 
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+            var result = await _signInManager.PasswordSignInAsync(user, password, rememberMe, false);
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Invalid login attempt");
+                return View();
+            }
+
+            // Get user role
+            var roles = await _userManager.GetRolesAsync(user);
+
+            // Role-based redirects
+            if (roles.Contains("HR"))
+                return RedirectToAction("Index", "Home");
+
+            if (roles.Contains("Lecturer"))
+                return RedirectToAction("Index", "LecturerClaims");
+
+            if (roles.Contains("Coordinator"))
+                return RedirectToAction("Index", "Coordinator");
+
+            if (roles.Contains("Manager"))
+                return RedirectToAction("Index", "Manager");
 
             return RedirectToAction("Index", "Home");
         }
@@ -51,7 +67,7 @@ namespace PROGCMCS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             return RedirectToAction("Index", "Home");
         }
     }

@@ -118,7 +118,7 @@
                         </form>
                     }
                     @* Worker menu *@
-                    @if (role == "Manager")
+                    @if (User.IsInRole("Manager"))
                     {
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item">
@@ -131,13 +131,9 @@
                             </li>
                         </ul>
 
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-                        </form>
                     }
                     @* HR *@
-                    @if (role == "HR")
+                    @if (User.IsInRole("HR"))
                     {
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item">
@@ -150,7 +146,7 @@
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("AddLecturer", "Lecturer")">Add Worder</a><!--Add lecturer-->
+                                <a class="nav-link" href="@Url.Action("AddWorker", "Lecturer")">Add Worder</a><!--Add lecturer-->
                             </li>
 
                             <li class="nav-item">
@@ -164,13 +160,10 @@
                             </li>
                         </ul>
 
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-                        </form>
+                        
                     }
 @* coordinator *@
-                    @if (role == "Coordinator")
+                    @if (User.IsInRole("Coordinator"))
                     {
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item">
@@ -184,13 +177,10 @@
                             </li>
                         </ul>
 
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-                        </form>
+                       
                     }
                     @* Lecturer-specific tabs *@
-                    @if (role == "Lecturer")
+                    @if (User.IsInRole("Lecturer"))
                     {
                         <li class="nav-item">
                             <a class="nav-link" href="@Url.Action("CreateClaim", "Lecturer")">Submit New Claim</a>
@@ -201,11 +191,17 @@
                     }
                     else
                     {
+                        <ul>
+                            <partial name="_LoginPartial" />
+                        </ul>
+                        /*
                         <a class="btn btn-light btn-sm" href="@Url.Action("Login", "Account")">Login</a>
+                        */
                     }
                 </div>
             </div>
         </div>
+
     </nav>
 
     <main class="container my-4">

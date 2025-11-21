@@ -1,11 +1,11 @@
-﻿using PROGCMCS.Models;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PROGCMCS.Models;
 
 namespace PROGCMCS.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -22,7 +22,6 @@ namespace PROGCMCS.Data
         {
             base.OnModelCreating(modelBuilder); // Important for Identity
 
-            // Configure relationships
             modelBuilder.Entity<MonthlyClaim>()
                 .HasOne(m => m.Lecturer)
                 .WithMany(l => l.MonthlyClaims)

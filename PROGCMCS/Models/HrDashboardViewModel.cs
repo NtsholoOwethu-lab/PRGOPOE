@@ -5,4 +5,4 @@
     public int SubmittedClaims { get; set; }
     public int RejectedClaims { get; set; }
     public int PaidClaims { get; set; }
-}
+}//not used?
