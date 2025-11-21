@@ -130,20 +130,40 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="WorkClaims" asp-action="PaymentSimulation">Payment Simulation</a>
                         </li>
                     }
-                    @* Worker menu *@
+                    @* HR *@
                     @if (role == "HR")
                     {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="WorkClaims" asp-action="MyClaims">My Claims</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="WorkClaims" asp-action="Create">New Claim</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="WorkClaims" asp-action="PaymentSimulation">Payment Simulation</a>
-                        </li>
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
+                                   href="@Url.Action("Index", "Home")">Home</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Dashboard", "Lecturer")">Summary</a><!--Summary Lecturer Dashboard-->
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("AddLecturer", "Lecturer")">Add Worder</a><!--Add lecturer-->
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("EditClaims", "Lecturer")">Edit Claims</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Index", "Automation")">Automation / Export</a> ><!--one export -->
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Index", "Automation")">Automation / Export</a>><!--Automation button-->
+                            </li>
+                        </ul>
+
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+                        </form>
                     }
-                    @* Worker menu *@
+@* coordinator *@
                     @if (role == "Coordinator")
                     {
                         <li class="nav-item">

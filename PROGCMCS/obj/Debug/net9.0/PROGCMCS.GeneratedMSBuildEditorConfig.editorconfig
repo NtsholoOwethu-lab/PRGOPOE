@@ -17,97 +17,97 @@ build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = PROGCMCS
 build_property.RootNamespace = PROGCMCS
-build_property.ProjectDir = C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PROGCMCS\
+build_property.ProjectDir = C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\PROGCMCS\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PROGCMCS
+build_property.MSBuildProjectDirectory = C:\Users\lab_services_student\OneDrive - ADvTECH Ltd\Desktop\PRGOPOE\PROGCMCS
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Account/Login.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Approver/ClaimHistory.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Approver/ClaimHistory.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwcm92ZXJcQ2xhaW1IaXN0b3J5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Approver/Dashboard.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Approver/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwcm92ZXJcRGFzaGJvYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Approver/ReviewClaim.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Approver/ReviewClaim.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwcm92ZXJcUmV2aWV3Q2xhaW0uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Automation/Index.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Automation/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0b21hdGlvblxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Home/About.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Home/About.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxBYm91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Home/Contact.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Home/Contact.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxDb250YWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Home/Index.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Home/Privacy.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Lecturer/AddLecturer.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Lecturer/AddLecturer.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJcQWRkTGVjdHVyZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Lecturer/ClaimDetails.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Lecturer/ClaimDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJcQ2xhaW1EZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Lecturer/CreateClaim.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Lecturer/CreateClaim.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJcQ3JlYXRlQ2xhaW0uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Lecturer/Dashboard.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Lecturer/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJcRGFzaGJvYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Lecturer/EditClaim.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Lecturer/EditClaim.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJcRWRpdENsYWltLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Shared/Error.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Verify/Dashboard.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Verify/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVyaWZ5XERhc2hib2FyZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Verify/ReviewClaim.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Verify/ReviewClaim.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVyaWZ5XFJldmlld0NsYWltLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/_ViewImports.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/_ViewStart.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PROGCMCS/Views/Shared/_Layout.cshtml]
+[C:/Users/lab_services_student/OneDrive - ADvTECH Ltd/Desktop/PRGOPOE/PROGCMCS/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-m4p8ck19nk
