@@ -3,28 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\progcmcs\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\progcmcs\\views\\automation\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|solutionrelative:views\\automation\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\progcmcs\\views\\lecturer\\dashboard.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|solutionrelative:views\\lecturer\\dashboard.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\progcmcs\\views\\lecturer\\addlecturer.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|solutionrelative:views\\lecturer\\addlecturer.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\progcmcs\\views\\lecturer\\editclaim.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|solutionrelative:views\\lecturer\\editclaim.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\progcmcs\\data\\seeddata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|solutionrelative:data\\seeddata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|c:\\users\\lab_services_student\\onedrive - advtech ltd\\desktop\\prgopoe\\progcmcs\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{F7291318-D185-4E97-B91A-060FD8432BA8}|PROGCMCS.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,81 +18,30 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Views\\Automation\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\Automation\\Index.cshtml",
-              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Views\\Automation\\Index.cshtml",
-              "RelativeToolTip": "Views\\Automation\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-21T00:09:05.441Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "EditClaim.cshtml",
-              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Views\\Lecturer\\EditClaim.cshtml",
-              "RelativeDocumentMoniker": "Views\\Lecturer\\EditClaim.cshtml",
-              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Views\\Lecturer\\EditClaim.cshtml",
-              "RelativeToolTip": "Views\\Lecturer\\EditClaim.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-20T23:56:08.177Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "AddLecturer.cshtml",
-              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Views\\Lecturer\\AddLecturer.cshtml",
-              "RelativeDocumentMoniker": "Views\\Lecturer\\AddLecturer.cshtml",
-              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Views\\Lecturer\\AddLecturer.cshtml",
-              "RelativeToolTip": "Views\\Lecturer\\AddLecturer.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-20T23:55:29.705Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Dashboard.cshtml",
-              "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Views\\Lecturer\\Dashboard.cshtml",
-              "RelativeDocumentMoniker": "Views\\Lecturer\\Dashboard.cshtml",
-              "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Views\\Lecturer\\Dashboard.cshtml",
-              "RelativeToolTip": "Views\\Lecturer\\Dashboard.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEMAAAAMAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-20T23:15:08.232Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 0,
               "Title": "SeedData.cs",
               "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Data\\SeedData.cs",
               "RelativeDocumentMoniker": "Data\\SeedData.cs",
               "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Data\\SeedData.cs",
               "RelativeToolTip": "Data\\SeedData.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAA7AAAAAAAAAA==",
+              "ViewState": "AgIAAD0AAAAAAAAAAAAUwHsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T22:18:40.055Z"
+              "WhenOpened": "2025-11-20T22:18:40.055Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "_Layout.cshtml",
               "DocumentMoniker": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Views\\Shared\\_Layout.cshtml",
               "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
               "ToolTip": "C:\\Users\\lab_services_student\\OneDrive - ADvTECH Ltd\\Desktop\\PRGOPOE\\PROGCMCS\\Views\\Shared\\_Layout.cshtml",
               "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAGoAAAAAmZmZmZkpwGwAAABRAAAAAAAAAA==",
+              "ViewState": "AgIAAOQAAAAAAAAAAAAAAHYAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-11-20T21:40:38.365Z",
               "EditorCaption": ""

@@ -1,10 +1,10 @@
 ﻿@model PROGCMCS.Models.Lecturer
 @{
-    ViewData["Title"] = "Add Lecturer";
+    ViewData["Title"] = "Add Worker";
 }
 
 <div class="container mt-5">
-    <h2 class="mb-4">Add New Lecturer</h2>
+    <h2 class="mb-4">Add New Worker</h2>
 
     <form asp-action="AddLecturer" method="post">
         <div class="form-group mb-3">
@@ -31,7 +31,7 @@
             <label asp-for="Department" class="form-label">Department</label>
             <input asp-for="Department" class="form-control" required />
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Add Lecturer</button>
+        <button type="submit" class="btn btn-primary mt-3">Add Worker</button>
         <a asp-action="Dashboard" class="btn btn-secondary mt-3">Back</a>
     </form>
 
