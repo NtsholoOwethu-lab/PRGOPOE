@@ -1,68 +1,161 @@
-﻿@using PROGCMCS.Models
-@model PROGCMCS.Models.MonthlyClaim
+﻿@model PROGCMCS.Models.LecturerClaimViewModel
 @{
-    ViewData["Title"] = "CreateClaim";
-
-    // Safely handle null ViewBag.Lecturers
-    var lecturersList = ViewBag.Lecturers != null
-        ? new SelectList(ViewBag.Lecturers, "LecturerId", "FullName")
-        : new SelectList(Enumerable.Empty<SelectListItem>());
+    ViewData["Title"] = "Submit New Claim";
 }
 
-<div class="container mt-5">
-    <h2 class="mb-4">Submit New Claim</h2>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Submit New Claim</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CreateClaim" method="post" id="claimForm">
+                        @Html.AntiForgeryToken()
 
-    <form asp-action="CreateClaim" method="post">
-        @Html.AntiForgeryToken()
+                        <!-- Lecturer Information Display -->
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-user me-1"></i>Your Information</h6>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <strong>Name:</strong><br>
+                                    <span id="displayName">@ViewBag.LecturerName</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Department:</strong><br>
+                                    <span id="displayDepartment">@ViewBag.LecturerDepartment</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <strong>Hourly Rate:</strong><br>
+                                    <span id="displayHourlyRate">@Model.HourlyRate.ToString("C")</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <strong>Max Monthly Hours:</strong><br>
+                                    <span id="displayMaxHours">@Model.MaxMonthlyHours</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <strong>Remaining Hours:</strong><br>
+                                    <span id="displayRemainingHours">@Model.MaxMonthlyHours</span>
+                                </div>
+                            </div>
+                        </div>
 
-        <div class="form-group mb-3">
-            <label asp-for="LecturerId" class="form-label">Lecturer</label>
-            <select asp-for="LecturerId" asp-items="@lecturersList" class="form-control" required>
-                <option value="">-- Select Lecturer --</option>
-            </select>
-            <span asp-validation-for="LecturerId" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Month" class="form-label">Month</label>
+                                    <select asp-for="Month" class="form-control">
+                                        <option value="1">January</option>
+                                        <option value="2">February</option>
+                                        <option value="3">March</option>
+                                        <option value="4">April</option>
+                                        <option value="5">May</option>
+                                        <option value="6">June</option>
+                                        <option value="7">July</option>
+                                        <option value="8">August</option>
+                                        <option value="9">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                    <span asp-validation-for="Month" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Year" class="form-label">Year</label>
+                                    <input asp-for="Year" class="form-control" type="number" value="@DateTime.Now.Year" />
+                                    <span asp-validation-for="Year" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="TotalHours" class="form-label">Total Hours Worked</label>
+                            <input asp-for="TotalHours" class="form-control" type="number" step="0.5" id="totalHours"
+                                   placeholder="Enter hours worked this month" />
+                            <span asp-validation-for="TotalHours" class="text-danger"></span>
+                            <small class="form-text text-muted">Enter hours worked this month (0.5 hour increments)</small>
+                        </div>
+
+                        <!-- Auto-calculation Display -->
+                        <div class="alert alert-success" id="calculationResult" style="display: none;">
+                            <h6><i class="fas fa-calculator me-1"></i>Calculation</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Hours:</strong> <span id="calcHours">0</span><br>
+                                    <strong>Rate:</strong> <span id="calcRate">@Model.HourlyRate.ToString("C")</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Total Amount:</strong><br>
+                                    <span id="calcTotal" class="h5">R0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Notes" class="form-label">Notes (Optional)</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3"
+                                      placeholder="Optional notes about this claim..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Dashboard" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Submit Claim</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <div class="form-group mb-3">
-            <label asp-for="Month" class="form-label">Month</label>
-            <input asp-for="Month" class="form-control" type="number" min="1" max="12" required />
-            <span asp-validation-for="Month" class="text-danger"></span>
-        </div>
-
-        <div class="form-group mb-3">
-            <label asp-for="Year" class="form-label">Year</label>
-            <input asp-for="Year" class="form-control" type="number" min="2020" max="2030" required />
-            <span asp-validation-for="Year" class="text-danger"></span>
-        </div>
-
-        <div class="form-group mb-3">
-            <label asp-for="TotalHours" class="form-label">Total Hours</label>
-            <input asp-for="TotalHours" class="form-control" type="number" step="0.01" required />
-            <span asp-validation-for="TotalHours" class="text-danger"></span>
-        </div>
-
-        <div class="form-group mb-3">
-            <label asp-for="Notes" class="form-label">Notes</label>
-            <textarea asp-for="Notes" class="form-control"></textarea>
-            <span asp-validation-for="Notes" class="text-danger"></span>
-        </div>
-
-        <button type="submit" class="btn btn-primary mt-3">Submit Claim</button>
-        <a asp-action="Dashboard" class="btn btn-secondary mt-3">Back</a>
-    </form>
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger mt-3">@TempData["ErrorMessage"]</div>
-    }
+    </div>
 </div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        const hourlyRate = @Model.HourlyRate;
+        const maxMonthlyHours = @Model.MaxMonthlyHours;
+
+        function updateCalculation() {
+            const hours = parseFloat(document.getElementById('totalHours').value) || 0;
+            const totalAmount = hours * hourlyRate;
+
+            // Update calculation display
+            document.getElementById('calcHours').textContent = hours.toFixed(1);
+            document.getElementById('calcTotal').textContent = 'R' + totalAmount.toFixed(2);
+
+            // Show/hide calculation result
+            const calcResult = document.getElementById('calculationResult');
+            calcResult.style.display = hours > 0 ? 'block' : 'none';
+
+            // Update remaining hours
+            const remainingHours = maxMonthlyHours - hours;
+            const remainingHoursElement = document.getElementById('displayRemainingHours');
+            remainingHoursElement.textContent = remainingHours.toFixed(1);
+
+            // Highlight if exceeding limit
+            if (hours > maxMonthlyHours) {
+                remainingHoursElement.className = 'text-danger fw-bold';
+                document.getElementById('calculationResult').className = 'alert alert-warning';
+            } else if (hours > 0) {
+                remainingHoursElement.className = 'text-success fw-bold';
+                document.getElementById('calculationResult').className = 'alert alert-success';
+            } else {
+                remainingHoursElement.className = '';
+                document.getElementById('calculationResult').className = 'alert alert-success';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('totalHours').addEventListener('input', updateCalculation);
+        document.getElementById('totalHours').addEventListener('change', updateCalculation);
+
+        // Initial calculation
+        updateCalculation();
+    </script>
 }

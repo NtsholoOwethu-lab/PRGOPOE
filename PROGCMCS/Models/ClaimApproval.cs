@@ -3,12 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PROGCMCS.Models
 {
-    public enum ApproverType
-    {
-        ProgrammeCoordinator,
-        AcademicManager
-    }
-
     public class ClaimApproval
     {
         [Key]
@@ -18,20 +12,22 @@ namespace PROGCMCS.Models
         public int ClaimId { get; set; }
 
         [Required]
-        public ApproverType ApproverType { get; set; }
+        [StringLength(50)]
+        public string ApproverRole { get; set; } = string.Empty; // Use this instead of ApproverRole
 
         [Required]
-        public int ApproverId { get; set; }
+        public string ApproverId { get; set; } = string.Empty; // Identity User Id
 
-        public bool? Decision { get; set; } // true = approved, false = rejected, null = pending
+        [Required]
+        public bool IsApproved { get; set; }
+
+        public DateTime ApprovalDate { get; set; } = DateTime.Now;
 
         [StringLength(500)]
-        public string? Comments { get; set; }
-
-        public DateTime? ApprovalDate { get; set; }
+        public string? Notes { get; set; }
 
         // Navigation properties
         [ForeignKey("ClaimId")]
-        public virtual MonthlyClaim MonthlyClaim { get; set; } = null!;
+        public virtual MonthlyClaim? MonthlyClaim { get; set; }
     }
 }

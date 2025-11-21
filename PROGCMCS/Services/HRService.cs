@@ -89,6 +89,7 @@ namespace PROGCMCS.Services
                         Email = model.Email,
                         Department = model.Department,
                         HourlyRate = model.HourlyRate,
+                        //MaxMonthlyHours = 180.00, // Set default max hours
                         IsActive = true
                     };
 

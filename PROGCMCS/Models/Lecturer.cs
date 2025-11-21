@@ -32,5 +32,7 @@ namespace PROGCMCS.Models
 
         // Add default value to handle existing records
         public bool IsActive { get; set; } = true;
+        [Range(0, 180, ErrorMessage = "Maximum monthly hours cannot exceed 180.")]
+        public decimal MaxMonthlyHours { get; set; } = 180; // Default value
     }
 }

@@ -100,7 +100,8 @@ namespace PROGCMCS.Data
                             LastName = last,
                             Email = email,
                             Department = dept,
-                            HourlyRate = rate
+                            HourlyRate = rate,
+                           
                         };
 
                         context.Lecturers.Add(lecturer);
@@ -167,6 +168,38 @@ namespace PROGCMCS.Data
             }
 
             logger.LogInformation("Seed data completed");
+            // Add sample claim approvals if they don't exist
+            if (!context.ClaimApprovals.Any())
+            {
+                var sampleClaims = await context.MonthlyClaims.Take(2).ToListAsync();
+
+                foreach (var claim in sampleClaims)
+                {
+                    // Add coordinator approval
+                    context.ClaimApprovals.Add(new ClaimApproval
+                    {
+                        ClaimId = claim.ClaimId,
+                        ApproverRole = "Coordinator",
+                        IsApproved = true,
+                        ApprovalDate = DateTime.Now.AddDays(-2),
+                        Notes = "Hours verified and approved"
+                    });
+
+                    // Add manager approval
+                    context.ClaimApprovals.Add(new ClaimApproval
+                    {
+                        ClaimId = claim.ClaimId,
+                        ApproverRole = "Manager",
+                        IsApproved = true,
+                        ApprovalDate = DateTime.Now.AddDays(-1),
+                        Notes = "Final approval granted"
+                    });
+                }
+
+                await context.SaveChangesAsync();
+            }
         }
+        //
+
     }
 }

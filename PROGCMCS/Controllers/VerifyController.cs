@@ -1,206 +1,136 @@
-﻿using PROGCMCS.Data;
-using PROGCMCS.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using PROGCMCS.Data;
+using PROGCMCS.Models;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace PROGCMCS.Controllers
 {
+    [Authorize(Roles = "Coordinator,Manager")]
     public class VerifyController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-
-        // Verification policy constants (tweak as needed)
-        private const decimal HourlyRateMin = 50m;
-        private const decimal HourlyRateMax = 300m;
-        private const decimal TotalHoursMin = 2m;
-        private const decimal TotalHoursMax = 10m;
-        private const int MaxMonthsBack = 12; // claims older than this (in months) will be declined
-
-
-        public VerifyController(ApplicationDbContext context)
+        public VerifyController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        // === DASHBOARD ===
         public async Task<IActionResult> Dashboard()
         {
-            // Claims that were submitted and need verification
-            var claimsToVerify = await _context.MonthlyClaims
+            var user = await _userManager.GetUserAsync(User);
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            var pendingClaims = await _context.MonthlyClaims
                 .Include(c => c.Lecturer)
-                .Include(c => c.SupportingDocuments)
-                .Where(c => c.Status == ClaimStatus.Submitted)
+                .Where(c => c.Status == ClaimStatus.Submitted || c.Status == ClaimStatus.Verify)
                 .OrderBy(c => c.SubmissionDate)
                 .ToListAsync();
 
-            return View(claimsToVerify);
+            ViewBag.UserRole = userRoles.FirstOrDefault();
+            return View(pendingClaims);
         }
 
-        // === REVIEW CLAIM ===
-        public async Task<IActionResult> ReviewClaim(int id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveClaim(int claimId, string notes)
+        {
+            return await ProcessClaim(claimId, true, notes);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectClaim(int claimId, string notes)
+        {
+            return await ProcessClaim(claimId, false, notes);
+        }
+
+        private async Task<IActionResult> ProcessClaim(int claimId, bool isApproved, string notes)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var userRole = userRoles.FirstOrDefault();
+
+            var claim = await _context.MonthlyClaims
+                .Include(c => c.Lecturer)
+                .FirstOrDefaultAsync(c => c.ClaimId == claimId);
+
+            if (claim == null)
+            {
+                TempData["ErrorMessage"] = "Claim not found.";
+                return RedirectToAction(nameof(Dashboard));
+            }
+
+            // Create approval record - FIXED: Use ApproverRole instead of ApproverRole
+            var approval = new ClaimApproval
+            {
+                ClaimId = claimId,
+                ApproverId = user.Id,
+                ApproverRole = userRole ?? "Approver", // Changed from ApproverRole to ApproverRole
+                IsApproved = isApproved,
+                Notes = notes,
+                ApprovalDate = DateTime.Now
+            };
+
+            _context.ClaimApprovals.Add(approval);
+
+            // Update claim status based on role and approval
+            if (userRole == "Coordinator")
+            {
+                claim.Status = isApproved ? ClaimStatus.Verify : ClaimStatus.Rejected;
+            }
+            else if (userRole == "Manager")
+            {
+                claim.Status = isApproved ? ClaimStatus.Approved : ClaimStatus.Rejected;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var action = isApproved ? "approved" : "rejected";
+            TempData["SuccessMessage"] = $"Claim {action} successfully.";
+            return RedirectToAction(nameof(Dashboard));
+        }
+
+        public async Task<IActionResult> ClaimDetails(int id)
         {
             var claim = await _context.MonthlyClaims
                 .Include(c => c.Lecturer)
                 .Include(c => c.SupportingDocuments)
+                .Include(c => c.ClaimApprovals)
                 .FirstOrDefaultAsync(c => c.ClaimId == id);
 
             if (claim == null)
-                return NotFound();
+            {
+                TempData["ErrorMessage"] = "Claim not found.";
+                return RedirectToAction(nameof(Dashboard));
+            }
 
             return View(claim);
         }
-
-        // === VERIFY CLAIM ===
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> VerifyClaim(int claimId, string? comments)
+        [HttpGet]
+        public async Task<IActionResult> ReviewClaim(int id)
         {
-            try
+            var user = await _userManager.GetUserAsync(User);
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            var claim = await _context.MonthlyClaims
+                .Include(c => c.Lecturer)
+                .Include(c => c.SupportingDocuments)
+                .Include(c => c.ClaimApprovals)
+                .FirstOrDefaultAsync(c => c.ClaimId == id);
+
+            if (claim == null)
             {
-                var claim = await _context.MonthlyClaims
-                    .Include(c => c.Lecturer)
-                    .Include(c => c.ClaimApprovals)
-                    .FirstOrDefaultAsync(c => c.ClaimId == claimId);
-
-                if (claim == null)
-                {
-                    TempData["ErrorMessage"] = "Claim not found.";
-                    return RedirectToAction(nameof(Dashboard));
-                }
-
-                // Run parameter validation rules
-                var violations = GetParameterViolations(claim);
-
-                if (violations.Any())
-                {
-                    // Auto-decline the claim with detailed comments
-                    claim.Status = ClaimStatus.Rejected;
-
-                    var approval = new ClaimApproval
-                    {
-                        ClaimId = claimId,
-                        ApproverType = ApproverType.ProgrammeCoordinator,
-                        ApproverId = 1, // demo verifier id or replace with actual user id
-                        Decision = false,
-                        Comments = "Auto-declined by verification rules: " + string.Join("; ", violations),
-                        ApprovalDate = DateTime.Now
-                    };
-
-                    _context.ClaimApprovals.Add(approval);
-                    await _context.SaveChangesAsync();
-
-                    TempData["ErrorMessage"] = "Claim declined due to verification rules: " + string.Join("; ", violations);
-                    return RedirectToAction(nameof(Dashboard));
-                }
-
-                // No violations → mark claim as verified and ready for approval
-                claim.Status = ClaimStatus.Verify;
-
-                var verifyApproval = new ClaimApproval
-                {
-                    ClaimId = claimId,
-                    ApproverType = ApproverType.ProgrammeCoordinator,
-                    ApproverId = 1, // demo verifier user id
-                    Decision = true,
-                    Comments = comments,
-                    ApprovalDate = DateTime.Now
-                };
-
-                _context.ClaimApprovals.Add(verifyApproval);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Claim verified successfully and sent for approval!";
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"Error verifying claim: {ex.Message}";
+                TempData["ErrorMessage"] = "Claim not found.";
+                return RedirectToAction(nameof(Dashboard));
             }
 
-            return RedirectToAction(nameof(Dashboard));
+            ViewBag.UserRole = userRoles.FirstOrDefault();
+            return View(claim);
         }
-
-        // Helper: check claim parameters and return list of violation messages
-        private List<string> GetParameterViolations(MonthlyClaim claim)
-        {
-            var violations = new List<string>();
-
-            // hourly rate
-            if (claim.HourlyRate < HourlyRateMin || claim.HourlyRate > HourlyRateMax)
-            {
-                violations.Add($"Hourly rate ({claim.HourlyRate}) must be between {HourlyRateMin} and {HourlyRateMax}.");
-            }
-
-            // total hours
-            if (claim.TotalHours < TotalHoursMin || claim.TotalHours > TotalHoursMax)
-            {
-                violations.Add($"Total hours ({claim.TotalHours}) must be between {TotalHoursMin} and {TotalHoursMax}.");
-            }
-
-            // claim period (month/year) validation
-            try
-            {
-                // Take the first day of the claimed month for date comparison
-                var claimPeriod = new DateTime(claim.Year, claim.Month, 1);
-                var now = DateTime.Now;
-                if (claimPeriod > new DateTime(now.Year, now.Month, 1))
-                {
-                    violations.Add("Claim period cannot be in the future.");
-                }
-
-                // If older than MaxMonthsBack months (approx)
-                var monthsDiff = ((now.Year - claimPeriod.Year) * 12) + (now.Month - claimPeriod.Month);
-                if (monthsDiff > MaxMonthsBack)
-                {
-                    violations.Add($"Claim period is older than {MaxMonthsBack} months.");
-                }
-            }
-            catch
-            {
-                // If month/year combination is invalid (shouldn't happen if model validation works)
-                violations.Add("Claim period is invalid.");
-            }
-
-            return violations;
-        }
-
-        // === DECLINE CLAIM === (unchanged or keep as-is)
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeclineClaim(int claimId, string? comments)
-        {
-            try
-            {
-                var claim = await _context.MonthlyClaims.FindAsync(claimId);
-                if (claim == null)
-                {
-                    TempData["ErrorMessage"] = "Claim not found.";
-                    return RedirectToAction(nameof(Dashboard));
-                }
-
-                claim.Status = ClaimStatus.Rejected;
-
-                var approval = new ClaimApproval
-                {
-                    ClaimId = claimId,
-                    ApproverType = ApproverType.ProgrammeCoordinator,
-                    ApproverId = 1,
-                    Decision = false,
-                    Comments = comments,
-                    ApprovalDate = DateTime.Now
-                };
-
-                _context.ClaimApprovals.Add(approval);
-                await _context.SaveChangesAsync();
-
-                TempData["ErrorMessage"] = "Claim declined and not sent for approval.";
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"Error declining claim: {ex.Message}";
-            }
-
-            return RedirectToAction(nameof(Dashboard));
-        }
-    } //approverid = 1 is a demo
+    }
 }

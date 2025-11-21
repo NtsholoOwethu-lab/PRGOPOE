@@ -1,204 +1,188 @@
-﻿using PROGCMCS.Data;
-using PROGCMCS.Models;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using PROGCMCS.Data;
+using PROGCMCS.Models;
 
 namespace PROGCMCS.Controllers
 {
+    [Authorize(Roles = "Lecturer")]
     public class LecturerController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _environment;
-        private readonly ILogger<LecturerController> _logger;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        // Hourly rate constraints
-        private const decimal HourlyRateMin = 50m;
-        private const decimal HourlyRateMax = 500m;
-
-        public LecturerController(
-            ApplicationDbContext context,
-            IWebHostEnvironment environment,
-            ILogger<LecturerController> logger)
+        public LecturerController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
-            _environment = environment;
-            _logger = logger;
+            _userManager = userManager;
         }
 
-        // === LECTURER DASHBOARD ===
-        public IActionResult Dashboard()
+        // === LECTURER DASHBOARD - View Claims ===
+        public async Task<IActionResult> Dashboard()
         {
-            var lecturers = _context.Lecturers
-                .Include(l => l.MonthlyClaims)
-                .ToList();
-
-            return View(lecturers);
-        }
-
-        // === GET: Add Lecturer ===
-        [HttpGet]
-        public IActionResult AddLecturer()
-        {
-            return View();
-        }
-
-        // === POST: Add Lecturer ===
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult AddLecturer(Lecturer lecturer)
-        {
-            // Server-side validation for hourly rate bounds
-            if (lecturer.HourlyRate < HourlyRateMin || lecturer.HourlyRate > HourlyRateMax)
+            var lecturer = await GetCurrentLecturerAsync();
+            if (lecturer == null)
             {
-                ModelState.AddModelError(nameof(lecturer.HourlyRate), $"Hourly rate must be between {HourlyRateMin} and {HourlyRateMax}.");
+                TempData["ErrorMessage"] = "Lecturer profile not found.";
+                return RedirectToAction("Index", "Home");
             }
 
-            if (ModelState.IsValid)
-            {
-                _context.Lecturers.Add(lecturer);
-                _context.SaveChanges();
+            var claims = await _context.MonthlyClaims
+                .Where(c => c.LecturerId == lecturer.LecturerId)
+                .OrderByDescending(c => c.Year)
+                .ThenByDescending(c => c.Month)
+                .Select(c => new LecturerClaimsListViewModel
+                {
+                    ClaimId = c.ClaimId,
+                    Month = c.Month,
+                    Year = c.Year,
+                    TotalHours = c.TotalHours,
+                    TotalAmount = c.TotalAmount,
+                    Status = c.Status,
+                    SubmissionDate = c.SubmissionDate,
+                    Notes = c.Notes
+                })
+                .ToListAsync();
 
-                TempData["SuccessMessage"] = "Lecturer added successfully!";
-                return RedirectToAction(nameof(Dashboard));
-            }
-
-            TempData["ErrorMessage"] = "Hourly rate must be between 50 and 500.";
-            return View(lecturer);
+            ViewBag.LecturerName = $"{lecturer.FirstName} {lecturer.LastName}";
+            return View(claims);
         }
 
         // === GET: Create Claim ===
         [HttpGet]
-        public IActionResult CreateClaim()
+        public async Task<IActionResult> CreateClaim()
         {
-            try
+            var lecturer = await GetCurrentLecturerAsync();
+            if (lecturer == null)
             {
-                // TEMPORARY FIX: Remove IsActive filter until migration is run
-                ViewBag.Lecturers = _context.Lecturers
-                    .Select(l => new { l.LecturerId, FullName = l.FirstName + " " + l.LastName })
-                    .ToList();
+                TempData["ErrorMessage"] = "Lecturer profile not found.";
+                return RedirectToAction("Dashboard");
+            }
 
-                return View();
-            }
-            catch (Exception ex)
+            var model = new LecturerClaimViewModel
             {
-                _logger.LogError(ex, "Error loading lecturers for CreateClaim");
-                ViewBag.Lecturers = new List<object>();
-                return View();
-            }
+                HourlyRate = lecturer.HourlyRate,
+                MaxMonthlyHours = lecturer.MaxMonthlyHours
+            };
+
+            // Pass lecturer information to the view
+            ViewBag.LecturerName = $"{lecturer.FirstName} {lecturer.LastName}";
+            ViewBag.LecturerDepartment = lecturer.Department;
+
+            return View(model);
         }
 
         // === POST: Create Claim ===
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateClaim(MonthlyClaim claim)
+        public async Task<IActionResult> CreateClaim(LecturerClaimViewModel model)
         {
-            if (!ModelState.IsValid)
+            var lecturer = await GetCurrentLecturerAsync();
+            if (lecturer == null)
             {
-                // TEMPORARY FIX: Remove IsActive filter
-                ViewBag.Lecturers = _context.Lecturers
-                    .Select(l => new { l.LecturerId, FullName = l.FirstName + " " + l.LastName })
-                    .ToList();
-                return View(claim);
+                TempData["ErrorMessage"] = "Lecturer profile not found.";
+                return RedirectToAction("Dashboard");
             }
 
-            try
-            {
-                // Find lecturer by the selected LecturerId from the form
-                var lecturer = await _context.Lecturers
-                    .FirstOrDefaultAsync(l => l.LecturerId == claim.LecturerId);
+            // Use the lecturer's actual MaxMonthlyHours
+            var maxHours = lecturer.MaxMonthlyHours;
 
-                if (lecturer == null)
+            // Validate monthly hours limit
+            if (model.TotalHours > maxHours)
+            {
+                ModelState.AddModelError(nameof(model.TotalHours),
+                    $"Hours cannot exceed maximum monthly limit of {maxHours} hours.");
+            }
+
+            // Check for duplicate claim for same month/year
+            var existingClaim = await _context.MonthlyClaims
+                .FirstOrDefaultAsync(c => c.LecturerId == lecturer.LecturerId &&
+                                         c.Month == model.Month &&
+                                         c.Year == model.Year);
+
+            if (existingClaim != null)
+            {
+                ModelState.AddModelError(string.Empty,
+                    $"A claim for {model.Month}/{model.Year} already exists.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
                 {
-                    TempData["ErrorMessage"] = "Selected lecturer not found.";
+                    var claim = new MonthlyClaim
+                    {
+                        LecturerId = lecturer.LecturerId,
+                        Month = model.Month,
+                        Year = model.Year,
+                        TotalHours = model.TotalHours,
+                        HourlyRate = lecturer.HourlyRate,
+                        TotalAmount = lecturer.HourlyRate * model.TotalHours,
+                        Status = ClaimStatus.Submitted,
+                        SubmissionDate = DateTime.Now,
+                        Notes = model.Notes
+                    };
 
-                    // TEMPORARY FIX: Remove IsActive filter
-                    ViewBag.Lecturers = _context.Lecturers
-                        .Select(l => new { l.LecturerId, FullName = l.FirstName + " " + l.LastName })
-                        .ToList();
-                    return View(claim);
+                    _context.MonthlyClaims.Add(claim);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = $"Claim for {model.Month}/{model.Year} submitted successfully! Total amount: {claim.TotalAmount:C}";
+                    return RedirectToAction(nameof(Dashboard));
                 }
-
-                // Set claim properties
-                claim.HourlyRate = lecturer.HourlyRate;
-                claim.TotalAmount = lecturer.HourlyRate * claim.TotalHours;
-                claim.SubmissionDate = DateTime.Now;
-                claim.Status = ClaimStatus.Submitted;
-
-                _context.MonthlyClaims.Add(claim);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Claim submitted successfully!";
-                return RedirectToAction(nameof(Dashboard));
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = $"Error submitting claim: {ex.Message}";
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating claim");
-                TempData["ErrorMessage"] = "An error occurred while submitting the claim.";
 
-                // TEMPORARY FIX: Remove IsActive filter
-                ViewBag.Lecturers = _context.Lecturers
-                    .Select(l => new { l.LecturerId, FullName = l.FirstName + " " + l.LastName })
-                    .ToList();
-                return View(claim);
-            }
+            // Repopulate lecturer data if validation fails
+            model.HourlyRate = lecturer.HourlyRate;
+            model.MaxMonthlyHours = lecturer.MaxMonthlyHours;
+
+            // Pass lecturer information to the view again
+            ViewBag.LecturerName = $"{lecturer.FirstName} {lecturer.LastName}";
+            ViewBag.LecturerDepartment = lecturer.Department;
+
+            return View(model);
         }
 
-        // === POST: Delete Document (AJAX) ===
-        [HttpPost]
-        public async Task<IActionResult> DeleteDocument(int id)
+        // === Claim Details ===
+        // === Claim Details ===
+        public async Task<IActionResult> ClaimDetails(int id)
         {
-            try
+            var lecturer = await GetCurrentLecturerAsync();
+            if (lecturer == null)
             {
-                var document = _context.SupportingDocuments.FirstOrDefault(d => d.DocumentId == id);
-                if (document == null)
-                    return Json(new { success = false, message = "Document not found." });
-
-                var filePath = Path.Combine(_environment.WebRootPath, "uploads", document.FilePath);
-                if (System.IO.File.Exists(filePath))
-                    System.IO.File.Delete(filePath);
-
-                _context.SupportingDocuments.Remove(document);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation($"Document {id} deleted successfully.");
-                return Json(new { success = true });
+                TempData["ErrorMessage"] = "Lecturer profile not found.";
+                return RedirectToAction("Dashboard");
             }
-            catch (Exception ex)
+
+            var claim = await _context.MonthlyClaims
+                .Include(c => c.Lecturer)
+                .Include(c => c.SupportingDocuments)
+                .Include(c => c.ClaimApprovals) // Make sure this is included
+                .FirstOrDefaultAsync(c => c.ClaimId == id && c.LecturerId == lecturer.LecturerId);
+
+            if (claim == null)
             {
-                _logger.LogError(ex, "Error deleting document.");
-                return Json(new { success = false, message = "Error deleting document." });
+                TempData["ErrorMessage"] = "Claim not found.";
+                return RedirectToAction("Dashboard");
             }
+
+            return View(claim);
         }
 
-        // GET: Lecturer/Edit/5
-        [HttpGet]
-        public async Task<IActionResult> EditLecturer(int id)
+        // === Helper Methods ===
+        private async Task<Lecturer?> GetCurrentLecturerAsync()
         {
-            var lecturer = await _context.Lecturers.FindAsync(id);
-            if (lecturer == null) return NotFound();
-            return View(lecturer);
-        }
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return null;
 
-        // POST: Lecturer/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditLecturer(int id, Lecturer lecturer)
-        {
-            if (id != lecturer.LecturerId) return BadRequest();
-
-            // Server-side validation for hourly rate bounds
-            if (lecturer.HourlyRate < HourlyRateMin || lecturer.HourlyRate > HourlyRateMax)
-            {
-                ModelState.AddModelError(nameof(lecturer.HourlyRate), $"Hourly rate must be between {HourlyRateMin} and {HourlyRateMax}.");
-            }
-
-            if (!ModelState.IsValid) return View(lecturer);
-
-            _context.Update(lecturer);
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Lecturer updated.";
-            return RedirectToAction(nameof(Dashboard));
+            return await _context.Lecturers
+                .FirstOrDefaultAsync(l => l.Email == user.Email);
         }
     }
 }
